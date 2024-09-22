@@ -6,8 +6,10 @@ import 'element-plus/dist/index.css'
 import {ElIcon} from 'element-plus';
 import axios from "axios";
 import {ElMessage, ElMessageBox} from 'element-plus';
-
+import Home from "@/views/Home.vue";
 import login from "@/views/login.vue";
+import PersonalPage from "@/views/PersonalPage.vue";
+import BotShop from "@/views/BotShop.vue";
 
 // import VueLazyload from "vue-lazyload";
 const routes = [
@@ -16,8 +18,21 @@ const routes = [
         name: 'Login',
         component: login
     },
-
-    // 其他路由配置...
+    {
+        path: '/',
+        name: 'Home',
+        component: Home
+    },
+    {
+        path: '/PersonalPage',
+        name: 'PersonalPage',
+        component: PersonalPage
+    },
+    {
+        path: '/BotShop',
+        name: 'BotShop',
+        component: BotShop
+    }
 ];
 
 const router = createRouter({
