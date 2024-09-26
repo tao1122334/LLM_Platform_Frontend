@@ -10,6 +10,7 @@ import Home from "@/views/Home.vue";
 import login from "@/views/login.vue";
 import PersonalPage from "@/views/PersonalPage.vue";
 import BotShop from "@/views/BotShop.vue";
+import Hw1 from "@/views/hw1.vue";
 
 // import VueLazyload from "vue-lazyload";
 const routes = [
@@ -32,6 +33,11 @@ const routes = [
         path: '/BotShop',
         name: 'BotShop',
         component: BotShop
+    },
+    {
+        path: '/Hw1',
+        name: 'Hw1',
+        component: Hw1
     }
 ];
 
@@ -154,7 +160,7 @@ app.config.globalProperties.$post = async function (v, par, data, to = null, tex
     }
     await axios.post(res, data, {
             headers: {
-                'Content-Type': 'multipart/form-data'
+                'Content-Type': 'multipart/json'
             }
         }
     )
@@ -166,23 +172,62 @@ app.config.globalProperties.$post = async function (v, par, data, to = null, tex
                 if (to) {
                     this[to] = response.data;
                 }
-            } else {
-                this.$showMessage(response.data.msg, 'error');
-                this[to] = null
             }
-
 
         })
         .catch(error => {
-            this.$showMessage(error, 'error');
+            this.$showMessage(error.response.data.msg, 'error');
             this[to] = null;
             console.error(error);
             if (v!=='login/' && error.response.status === 401){
                     window.location.href = '/login';
                 }
         });
-
 };
+
+app.config.globalProperties.$delete = async function (v, par = {}, to = null, text, type) {
+    let res = 'api/' + v;
+
+    // 如果有参数，构建查询字符串
+    if (Object.keys(par).length > 0) {
+        const keys = Object.keys(par);
+        res += '?' + keys[0] + '=' + par[keys[0]];
+        // 从第二个元素开始遍历
+        for (let i = 1; i < keys.length; i++) {
+            res += '&' + keys[i] + '=' + par[keys[i]];
+        }
+    }
+
+    await axios.delete(res, {
+        headers: {
+            'Content-Type': 'application/json' // 可根据需求修改内容类型
+        }
+    })
+    .then(response => {
+        if (200<=response.status < 300) {
+            if (text) {
+                this.$showMessage(text, type);
+            }
+            if (to) {
+                this[to] = response.data;
+            }
+        } else {
+            this.$showMessage(response.data.msg, 'error');
+            this[to] = null;
+        }
+    })
+    .catch(error => {
+        this.$showMessage(error.message || 'An error occurred', 'error');
+        this[to] = null;
+        console.error(error);
+        if (v !== 'login/' && error.response && error.response.status === 401) {
+            window.location.href = '/login';
+        }
+    });
+};
+
+
+
 app.use(router);
 app.use(ElementPlus)
 app.use(ElIcon)
