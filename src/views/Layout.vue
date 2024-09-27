@@ -5,7 +5,7 @@ import NavigationBar from "@/views/NavigationBar.vue";
 
 <template>
   <div style="display: flex; flex-direction: row">
-<!--    <NavigationBar/>-->
+    <NavigationBar/>
     <router-view />
   </div>
 
