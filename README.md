@@ -84,7 +84,16 @@ data() {
     }
 }
 ```
-
+## 在main.js中，设置全局变量的方法如下
+```javascript
+let usr = reactive({userId: null, username: null, userImg: null, isSuper: null})
+app.config.globalProperties.$user = usr;
+```
+### 使用示例
+```javascript
+this.$user.userId
+```
+直接使用或者赋值即可
 
 
 

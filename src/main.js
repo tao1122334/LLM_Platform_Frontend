@@ -237,9 +237,9 @@ app.use(ElIcon)
 //     // loading: 'img/pika.png', // 加载时显示的图片
 //     attempt: 1
 // });
-let usr = reactive({userId: null, username: null, userImg: null})
+let usr = reactive({userId: 12345, username: null, userImg: null, isSuper: null})
 let showChatView = reactive({flag: false, flag2: false})
-app.config.globalProperties.$usr = usr;
+app.config.globalProperties.$user = usr;
 app.config.globalProperties.$showChatView = showChatView;
 app.config.globalProperties.$toggleVisibility = function (v) {
     const el = document.getElementById(v); // 获取组件的元素
