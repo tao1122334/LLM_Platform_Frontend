@@ -18,21 +18,51 @@ export default {
     return {
       showSettings: false, // 控制设置菜单显示
       isTempChatEnabled: false, // 控制临时聊天开关
-      isAdmin: false, // 假设当前用户是管理员
-      messages: [ // 示例消息数据
-        { text: "你好！", sender: "me" },
-        { text: "欢迎来到LLM ！", sender: "assistant" },
-        { text: "以下是新消息", sender: "system" },
-        { text: "这是一条新消息", sender: "assistant" }
+      isAdmin: true, // 假设当前用户是管理员
+      showAdminSettings: false, // 控制管理员设置显示
+      messages: [ // 修改后的消息数据结构
+        {
+          text: "你好！",
+          image: "src/assets/login.jpg",
+          file: "",
+          sender: "me"
+        },
+        {
+          text: "欢迎来到LLM ！",
+          image: "",
+          file: "",
+          sender: "assistant"
+        },
+        {
+          text: "以下是新消息",
+          image: "src/assets/login.jpg",
+          file: "",
+          sender: "system"
+        }
       ],
-      newMessage: "", // 新消息内容
-      hoveredIcon: "" // 用于追踪悬停图标状态
+      newMessage: "",  // 新消息内容
+      hoveredIcon: "", // 用于追踪悬停图标状态
+      formData: {
+        defaultBot: 'GPT 3.5',  // 默认选项
+        maxRate: 100000000,  // 最大频率
+        gpt35Cost: 0,  // GPT 3.5 花费
+        gpt40Cost: 0,  // GPT 4.0 花费
+        gpt40MiniCost: 0  // GPT 4.0 mini 花费
+      },
+      data: null
     };
   },
   methods: {
     // 切换设置菜单显示
     toggleSettings() {
       this.showSettings = !this.showSettings;
+    },
+    toggleAdminSettings() {
+      this.showAdminSettings = !this.showAdminSettings;
+      this.hideMenu();
+    },
+    closeModal() {
+      this.showAdminSettings = false;
     },
     hideMenu() {
       this.showSettings = false;
@@ -49,47 +79,42 @@ export default {
       if (!isInsideButton && !isInsideDropdown) {
         this.hideMenu();
       }
-    }
-    ,
-    // 发送消息
+    },
     async sendMessage() {
       if (this.newMessage.trim() !== "") {
         // 将消息先暂时添加到本地消息列表中
         this.messages.push({ text: this.newMessage, sender: "me" });
         // 调用 API 发送消息
-        try {
-          const response = await fetch('/api/chat/send', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: this.newMessage })
-          });
-          if (!response.ok) {
-            throw new Error('Failed to send message');
-          }
-        } catch (error) {
-          console.error("发送消息失败:", error);
-        }
+        await this.$post('send', {}, { message: this.newMessage }, 'data');
         // 清空输入框
         this.newMessage = "";
+      }else {
+        alert("消息不能为空");
+        this.messages.push({ text: '消息不能为空', sender: "system" });
       }
     },
-
-    // 接收来自服务器的新消息
     async receiveMessages() {
       try {
-        const response = await fetch('/api/chat/receive');
-        if (!response.ok) {
-          throw new Error('Failed to fetch messages');
-        }
-
-        const data = await response.json();
-        // 假设后端返回的是一个消息数组
-        this.messages = [...this.messages, ...data.messages];
+        await this.$get('home/', {}, 'data');
       } catch (error) {
-        console.error("接收消息失败:", error);
+        console.error("接收对话消息失败:", error);
       }
+    },
+    isImage(filePath) {
+      return filePath && (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') || filePath.endsWith('.png') || filePath.endsWith('.gif'));
+    },
+    // api
+    handleSubmit() {
+      // 提交表单数据，并通过事件返回到父组件
+      this.$post('submit', {}, this.formData, 'data');
+      this.formData = {
+        defaultBot: 'GPT 3.5',
+        maxRate: 100000000,
+        gpt35Cost: 0,
+        gpt40Cost: 0,
+        gpt40MiniCost: 0
+      };
+      this.closeModal();
     },
 
     // 切换临时聊天开关
@@ -173,46 +198,69 @@ export default {
 
     <!-- 中间：聊天区域 -->
     <main class="chat-area">
-      <section class="chat-box">
-        <!-- 聊天消息列表 -->
-        <div v-for="(message, index) in messages" :key="index" :class="['message', message.sender === 'me' ? 'my-message' : message.sender === 'assistant' ? 'assistant-message' : 'center-message']">
-          <!-- 左侧（assistant）头像 -->
-          <IconEcosystem v-if="message.sender === 'assistant'" class="avatar"/>
-          <p class="message-content" v-if="message.sender === 'assistant'||message.sender === 'me'">{{ message.text }}</p>
-          <!-- 右侧（用户）头像 -->
-          <IconTooling v-if="message.sender === 'me'" class="avatar"/>
-          <!-- 居中消息（系统提示或分隔线） -->
-          <template v-if="message.sender === 'system'">
-            <div class="center-container">
-              <div class="line"></div>
-              <span class="center-text">{{ message.text }}</span>
-              <div class="line"></div>
-            </div>
-          </template>
-          <template v-if="message.sender === 'assistant'">
-            <!-- 图标按钮组 -->
-            <div class="icon-group">
-              <div class="icon-item" @mouseover="showTooltip('volume')" @mouseleave="hideTooltip">
-                <IconTooling class="icon-img"/>
-                <div v-if="hoveredIcon === 'volume'" class="tooltip">朗读</div>
+        <!-- 聊天消息列表区域 -->
+        <section class="chat-box">
+          <!-- 使用 v-for 循环渲染每条消息 -->
+          <div v-for="(message, index) in messages"
+               :key="index"
+               :class="['message', message.sender === 'me' ? 'my-message' : message.sender === 'assistant' ? 'assistant-message' : 'center-message']">
+
+            <!-- 左侧（机器人 assistant）头像使用内联 <img> 标签渲染 -->
+            <img v-if="message.sender === 'assistant'"
+                 :src="message.image"
+                 alt="机器人头像"
+                 class="avatar"
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"
+                 loading="lazy" />
+
+            <!-- 聊天内容 -->
+            <p class="message-content" v-if="message.sender === 'assistant' || message.sender === 'me'">{{ message.text }}</p>
+
+            <!-- 右侧（用户 me）头像使用内联 <img> 标签渲染 -->
+            <img v-if="message.sender === 'me'"
+                 :src="message.image"
+                 alt="用户头像"
+                 class="avatar"
+                 style="width: 40px; height: 40px; border-radius: 50%; margin-left: 10px;"
+                 loading="lazy" />
+
+            <!-- 居中（系统提示 system）消息 -->
+            <template v-if="message.sender === 'system'">
+              <div class="center-container">
+                <div class="line"></div>
+                <span class="center-text">{{ message.text }}</span>
+                <div class="line"></div>
               </div>
-              <div class="icon-item" @mouseover="showTooltip('copy')" @mouseleave="hideTooltip">
-                <IconTooling class="icon-img"/>
-                <div v-if="hoveredIcon === 'copy'" class="tooltip">复制</div>
-              </div>
-              <div class="icon-item" @mouseover="showTooltip('refresh')" @mouseleave="hideTooltip">
-                <IconTooling class="icon-img"/>
-                <div v-if="hoveredIcon === 'refresh'" class="tooltip">刷新</div>
-              </div>
-            </div>
-          </template>
-        </div>
-      </section>
+            </template>
+
+            <!-- 显示用户上传的文件（如果是图片格式） -->
+            <img v-if="isImage(message.file)&&message.sender === 'me'"
+                 :src="message.file"
+                 alt="用户上传的图片"
+                 class="message-file"
+                 style="max-width: 200px; margin: 10px 0;"
+                 loading="lazy" />
+
+            <!-- 显示机器人回复的文件（如果是图片格式） -->
+            <img v-if="isImage(message.file)&&message.sender === 'assistant'"
+                 :src="message.file"
+                 alt="机器人回复的图片"
+                 class="message-file"
+                 style="max-width: 200px; margin: 10px 0;"
+                 loading="lazy" />
+          </div>
+        </section>
 
       <!-- 输入区域 -->
-      <footer class="input-area">
-        <textarea v-model="newMessage" placeholder="输入您的消息..." rows="2"></textarea>
-        <button @click="sendMessage">发送</button>
+      <footer style="display: flex; align-items: center; border-top: 1px solid #ddd; padding: 10px; background-color: #f7f7f7; position: sticky; bottom: 0; width: 100%;">
+      <textarea v-model="newMessage"
+                placeholder="输入您的消息..."
+                rows="2"
+                style="flex-grow: 1; border: 1px solid #ddd; border-radius: 4px; padding: 10px; resize: none; overflow-y: auto;"></textarea>
+        <button @click="sendMessage"
+                style="padding: 10px 20px; margin-left: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s;">
+          发送
+        </button>
       </footer>
     </main>
 
@@ -241,30 +289,74 @@ export default {
             <span class="menu-icon">🔗</span>
             <span class="menu-text">复制链接</span>
           </li>
-          <li v-if="isAdmin" @click="">
+          <li v-if="isAdmin" @click="toggleAdminSettings">
             <span class="menu-icon"></span>
             <span class="menu-text">管理员设置</span>
           </li>
         </ul>
       </div>
-
     </aside>
+
+    <div v-if="showAdminSettings" class="modal-background">
+      <div class="modal-content">
+        <h3>管理员设置窗口</h3>
+
+        <!-- 默认 BOT 选择 -->
+        <div class="form-group">
+          <label for="defaultBot">默认BOT:</label>
+          <select id="defaultBot" v-model="formData.defaultBot">
+            <option value="GPT 3.5">GPT 3.5</option>
+            <option value="GPT 4.0">GPT 4.0</option>
+            <option value="GPT 4.0 mini">GPT 4.0 mini</option>
+          </select>
+        </div>
+
+        <!-- 使用最大频率 -->
+        <div class="form-group">
+          <label for="maxRate">使用最大频率:</label>
+          <input type="number" id="maxRate" v-model="formData.maxRate" />
+        </div>
+
+        <!-- 每次问答 token 花费 -->
+        <h4>每次问答 token 花费</h4>
+        <div class="form-group">
+          <label for="gpt35">GPT 3.5:</label>
+          <input type="number" id="gpt35" v-model="formData.gpt35Cost" />
+        </div>
+        <div class="form-group">
+          <label for="gpt40">GPT 4.0:</label>
+          <input type="number" id="gpt40" v-model="formData.gpt40Cost" />
+        </div>
+        <div class="form-group">
+          <label for="gpt40mini">GPT 4.0 mini:</label>
+          <input type="number" id="gpt40mini" v-model="formData.gpt40MiniCost" />
+        </div>
+
+        <!-- 按钮组 -->
+        <div class="button-group">
+          <button @click="handleSubmit">确定</button>
+          <button @click="closeModal">取消</button>
+        </div>
+    </div>
+  </div>
   </div>
 </template>
 
 <style scoped>
 .home-container {
   display: flex;
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
+  flex-grow: 1;
 }
-
+/*-------------------------------------------------------------------------------*/
 /* 左侧栏样式 */
 .left-sidebar {
-  width: 25%;
+  width: 20%;
   padding: 20px;
   background-color: #f7f7f7;
   border-right: 1px solid #ddd;
+  flex-grow: 1;
 }
 /* 临时聊天开关容器 */
 .switch-container {
@@ -325,19 +417,20 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(26px);
 }
-
+/*-------------------------------------------------------------------------------*/
 /* 中间聊天区域样式 */
 .chat-area {
   width: 60%;
+  height: 100vh;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 20px;
   background-color: #fff;
-}
-
-.chat-box {
   flex-grow: 1;
+}
+.chat-box {
+  height: calc(100% - 60px);
   overflow-y: auto;
   padding: 10px;
   border: 1px solid #ddd;
@@ -367,12 +460,27 @@ input:checked + .slider:before {
   justify-content: flex-end;
 }
 
-.my-message .message-content {
+.message-content {
   background-color: #007bff;
   border-radius: 15px 15px 0 15px;
   padding: 10px;
   color: white;
   max-width: 60%;
+}
+
+/* 图片消息样式 */
+.message-image {
+  margin: 10px 0;
+  max-width: 200px;
+  border-radius: 8px;
+}
+
+/* 文件消息样式 */
+.message-file {
+  color: #007bff;
+  text-decoration: underline;
+  margin: 10px 0;
+  cursor: pointer;
 }
 
 /* 系统提示消息（居中） */
@@ -469,6 +577,7 @@ input:checked + .slider:before {
   opacity: 1; /* 鼠标悬停时显示提示框 */
 }
 
+/*-------------------------------------------------------------------------------*/
 /* 输入框样式 */
 .input-area {
   display: flex;
@@ -483,7 +592,7 @@ textarea {
   overflow-y: auto;
 }
 
-button {
+.sendButton {
   padding: 10px;
   margin-left: 10px;
   background-color: #007bff;
@@ -492,7 +601,11 @@ button {
   border-radius: 4px;
   cursor: pointer;
 }
+.sendButton:hover {
+  background-color: #888; /* 鼠标悬停时按钮颜色 */
+}
 
+/*-------------------------------------------------------------------------------*/
 /* 右侧栏样式 */
 .right-sidebar {
   width: 25%;
@@ -501,14 +614,13 @@ button {
   border-left: 1px solid #ddd;
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-end; /* 子元素水平方向靠右对齐 */
+  justify-content: flex-start;  /* 子元素水平方向靠右对齐 */
+  flex-grow: 1;
 }
 
 /* 固定设置按钮到右上角 */
 .settings-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background: none;
   color: black;
   border: none;
@@ -519,16 +631,13 @@ button {
 
 /* 设置菜单弹出样式 */
 .settings-dropdown {
-  position: absolute;
-  top: 50px;
-  right: 10px;
   background-color: white;
   border: 1px solid #ddd;
   border-radius: 5px;
   padding: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  z-index: 100;
-  width: 200px;
+  width: 100%;
+  margin-top: 10px;
 }
 
 .settings-dropdown ul {
@@ -550,5 +659,49 @@ button {
 
 .settings-dropdown li:hover {
   background-color: #f0f0f0;
+}
+
+/* 模态框背景 */
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 模态框内容 */
+.modal-content {
+  background: #ddd; /* 灰色背景 */
+  padding: 20px;
+  border-radius: 10px;
+  min-width: 300px;
+}
+
+/* 表单组 */
+.form-group {
+  margin: 10px 0;
+}
+
+/* 按钮组样式 */
+.button-group {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #888; /* 鼠标悬停时按钮颜色 */
 }
 </style>

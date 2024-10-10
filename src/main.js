@@ -11,6 +11,8 @@ import login from "@/views/login.vue";
 import PersonalPage from "@/views/PersonalPage.vue";
 import BotShop from "@/views/BotShop.vue";
 import Hw1 from "@/views/hw1.vue";
+import BotDetail from "@/views/BotDetail.vue";
+import OthersPage from "@/views/OthersPage.vue";
 
 // import VueLazyload from "vue-lazyload";
 const routes = [
@@ -38,6 +40,16 @@ const routes = [
         path: '/Hw1',
         name: 'Hw1',
         component: Hw1
+    },
+    {
+        path: '/BotDetail',
+        name: 'BotDetail',
+        component: BotDetail
+    },
+    {
+        path: '/OthersPage',
+        name: 'OthersPage',
+        component: OthersPage
     }
 ];
 
@@ -69,6 +81,14 @@ app.config.globalProperties.$showMessageBox = (title, text) => {
 };
 
 app.config.globalProperties.$get = async function (v, par, data, text = '', type = '', send = true) {
+    /**
+     * @param {string} v - 请求的 API 接口名称（路径的一部分），拼接在 'api/' 后面。
+     * @param {Object} par - 请求的参数对象（键值对形式），用于生成 URL 查询字符串。
+     * @param {string} data - 结果接收的 Vue 变量名（字符串形式），用于存储请求返回的结果数据。
+     * @param {string} [text=''] - 成功时显示的提示信息（可选）。
+     * @param {string} [type=''] - 提示信息的类型（可选），如 'success' 或 'error'。
+     * @param {boolean} [send=true] - 是否发送请求并处理错误消息（默认为 true）。
+     */
     var res = 'api/' + v;
     const keys = Object.keys(par);
     if (Object.length > 0) {
@@ -104,6 +124,13 @@ app.config.globalProperties.$get = async function (v, par, data, text = '', type
         });
 };
 app.config.globalProperties.$fetch = async function (v, par, data, text, type) {
+    /**
+     * @param {string} v - 请求的 API 接口名称（路径的一部分）。
+     * @param {Object} par - 请求的参数对象（键值对形式）。
+     * @param {string} data - 结果接收的 Vue 变量名（字符串形式）。
+     * @param {string} text - 成功时显示的提示信息（可选）。
+     * @param {string} type - 提示信息的类型（可选）。
+     */
     var res = 'api/' + v;
     const keys = Object.keys(par);
     if (Object.length > 0) {
@@ -138,6 +165,10 @@ app.config.globalProperties.$fetch = async function (v, par, data, text, type) {
         });
 };
 app.config.globalProperties.$dealtime = function (dateTime) {
+    /**
+     * @param {string} dateTime - 需要处理的日期时间字符串。
+     * @returns {string} - 返回替换 'T' 为 ' ' 的格式化时间字符串。
+     */
     if (dateTime) {
         try {
             return dateTime.replace('T', ' ');
@@ -147,6 +178,14 @@ app.config.globalProperties.$dealtime = function (dateTime) {
     }
 }
 app.config.globalProperties.$post = async function (v, par, data, to = null, text, type) {
+    /**
+     * @param {string} v - 请求的 API 接口名称（路径的一部分）。
+     * @param {Object} par - 请求的参数对象（键值对形式），用于生成 URL 查询字符串（可选）。
+     * @param {Object} data - POST 请求中发送的请求体数据（对象或数组形式）。
+     * @param {string|null} [to=null] - 结果接收的 Vue 变量名（可选）。
+     * @param {string} text - 成功时显示的提示信息（可选）。
+     * @param {string} type - 提示信息的类型（可选）。
+     */
     var res = 'api/' + v;
 
     if (par && Object.length > 0) {
@@ -184,8 +223,14 @@ app.config.globalProperties.$post = async function (v, par, data, to = null, tex
                 }
         });
 };
-
 app.config.globalProperties.$delete = async function (v, par = {}, to = null, text, type) {
+    /**
+     * @param {string} v - 请求的 API 接口名称（路径的一部分）。
+     * @param {Object} [par={}] - 请求的参数对象（键值对形式），用于生成 URL 查询字符串（可选）。
+     * @param {string|null} [to=null] - 结果接收的 Vue 变量名（可选）。
+     * @param {string} text - 成功时显示的提示信息（可选）。
+     * @param {string} type - 提示信息的类型（可选）。
+     */
     let res = 'api/' + v;
 
     // 如果有参数，构建查询字符串
