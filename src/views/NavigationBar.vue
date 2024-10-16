@@ -11,6 +11,15 @@ export default {
       this.$router.push({ path: "/login" });
     },
 
+    // TODO: url:admin_bot  接收返回的文件，并且直接让用户下载
+    getBotTable(){
+
+    },
+
+    // TODO: url:admin_user  接收返回的文件，并且直接让用户下载
+    getUserTable(){
+
+    }
   }
 }
 </script>
@@ -32,10 +41,10 @@ export default {
       <div @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer">
         Bot 商店
       </div>
-      <div>
+      <div @click="getUserTable">
         导出用户入账流水
       </div>
-      <div>
+      <div @click="getBotTable">
         导出Bot评分
       </div>
       <div @click="goToLogin" style="cursor: pointer">

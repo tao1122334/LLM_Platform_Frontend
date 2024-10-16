@@ -15,7 +15,7 @@
       </div>
       <!-- 右侧：收藏数和分享按钮 -->
       <div style="display: flex; align-items: center; gap: 20px;">
-        <span style="font-size: 16px; cursor: pointer;">
+        <span style="font-size: 16px; cursor: pointer;" @click="collect">
           <i class="iconfont">&#xe600;</i> {{ bot.favorites }} 收藏
         </span>
         <button style="padding: 8px 16px; border: none; background: #007bff; color: #fff; border-radius: 4px; cursor: pointer;">
@@ -34,7 +34,7 @@
       <div style="width: 25%; padding: 20px; background: #fff; box-shadow: -1px 0 4px rgba(0, 0, 0, 0.1);">
         <!-- 点赞数、使用量、对话数统计栏 -->
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px; align-items: center;">
-          <span style="font-size: 14px; color: #666;"><i class="iconfont">&#xe601;</i> {{ bot.likes }} 赞</span>
+          <span style="font-size: 14px; color: #666;cursor: pointer" @click="like"><i class="iconfont">&#xe601;</i> {{ bot.likes }} 赞</span>
           <span style="font-size: 14px; color: #666;"><i class="iconfont">&#xe602;</i> {{ bot.usageCount }} 使用</span>
           <span style="font-size: 14px; color: #666;"><i class="iconfont">&#xe603;</i> {{ bot.dialogCount }} 对话</span>
         </div>
@@ -98,7 +98,11 @@ export default {
     goToPost(postId) {
       console.log("跳转到社区帖子：", postId);
       this.$router.push({ path: `/OthersPage` });
-    }
+    },
+    // todo: url:likebot POST 传botid（键名）, 检查后端的返回信息 result:added, 如果是未添加，则是add, 出现弹窗提示
+    like(){},
+    // todo: url:collectbot POST 传botid（键名）, 检查后端的返回信息 result:added, 如果是未添加，则是add, 出现弹窗提示
+    collect(){}
   }
 };
 </script>

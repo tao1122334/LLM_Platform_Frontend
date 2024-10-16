@@ -55,7 +55,7 @@
     </div>
   </div>
 </template>
-
+<!--todo: 自定义机器人详情界面，不应该弹出对话，请参考figma或者再向我确认-->
 <script>
 export default {
   name: 'PersonalPage',

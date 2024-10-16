@@ -58,6 +58,7 @@ export default {
 
     };
   },
+
   created() {
     this.userId = this.$route.query.id;
   },
@@ -103,7 +104,7 @@ export default {
         form.append('chat_content', this.newMessage);
         form.append('userfile', this.uploadedFile);
         await this.$post(this.url, null, form, 'data');
-        this.messages.push({ text: this.data.chat_content+" | "+this.data.chat_method, sender: "assistant" });
+        this.messages.push({ text: this.data.fields.bot_text+" | "+this.data.chat_method, sender: "assistant" });
         this.newMessage = "";
       }else {
         alert("消息不能为空");
@@ -162,6 +163,7 @@ export default {
       }
     },
     // 菜单项点击事件
+    // TODO: url: del_messagelist method: DELETE 并且记得更新message
     deleteChatHistory() {
       // 清空消息列表
       this.messages = [];
@@ -203,6 +205,7 @@ export default {
   },
   mounted() {
     document.addEventListener('click', this.handleOutsideClick.bind(this));
+    //TODO: 向后端请求主页的消息记录，并且将message设置为请求的列表  method: GET url: messagelist
   },
 
   beforeDestroy() {
@@ -212,6 +215,7 @@ export default {
 };
 </script>
 
+<!--TODO: 输入栏输入@的时候弹出弹窗，弹窗中有列表，选择之后在输入框上方显示正在对话的机器人名字-->
 <template>
   <div class="home-container">
     <!-- 左边：临时聊天相关设置 -->

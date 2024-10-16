@@ -64,11 +64,16 @@ export default {
         console.error("Error fetching bots:", error);
       }
     },
+  },
+  mounted() {
+    // todo: 获取Bot的列表 url:botlist method:GET 参数 search(用户所输入的关键词), order(bestofmonth/bestofalltime/mostvisited)
+    this.getBots()
   }
 };
 
 </script>
-
+<!--todo: 在社区旁边增加一个发帖键-->
+<!--todo: 是点作者头像跳转到作者的空间，而不是点评论-->
 <template>
   <div style="width: 100vw; height: 100vh; display: flex; flex-direction: column;">
     <!-- 固定顶部搜索栏 -->
