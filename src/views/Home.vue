@@ -41,6 +41,7 @@ export default {
         }
       ],
       newMessage: "",  // 新消息内容
+      uploadedFile: null,
       hoveredIcon: "", // 用于追踪悬停图标状态
       formData: {
         defaultBot: 'GPT 3.5',  // 默认选项
@@ -49,8 +50,21 @@ export default {
         gpt40Cost: 0,  // GPT 4.0 花费
         gpt40MiniCost: 0  // GPT 4.0 mini 花费
       },
-      data: null
+      data: null,
+      bot_id: 3,
+      group_id: 1,
+      url: '',
+      user_id: null,
+
     };
+  },
+  created() {
+    this.userId = this.$route.query.id;
+  },
+  watch: {
+    '$route'(newQuery) {
+      this.userId = newQuery.id;
+    }
   },
   methods: {
     // 切换设置菜单显示
@@ -82,20 +96,36 @@ export default {
     },
     async sendMessage() {
       if (this.newMessage.trim() !== "") {
-        // 将消息先暂时添加到本地消息列表中
-        this.messages.push({ text: this.newMessage, sender: "me" });
-        // 调用 API 发送消息
-        await this.$post('send', {}, { message: this.newMessage }, 'data');
-        // 清空输入框
+        this.messages.push({ text:this.newMessage, sender: "me" });
+        this.url = 'chat/'+ this.bot_id + '/' + this.group_id + '/';
+        const form = new FormData();
+        form.append('chat_method', 'common');
+        form.append('chat_content', this.newMessage);
+        form.append('userfile', this.uploadedFile);
+        await this.$post(this.url, null, form, 'data');
+        this.messages.push({ text: this.data.chat_content+" | "+this.data.chat_method, sender: "assistant" });
         this.newMessage = "";
       }else {
         alert("消息不能为空");
-        this.messages.push({ text: '消息不能为空', sender: "system" });
+      }
+    },
+    async getAdminSettings() {
+      try {
+        await this.$get('admin/settings/', null, 'data');
+      } catch (error) {
+        console.error("获取管理员设置失败:", error);
+      }
+    },
+    async postAdminSettings() {
+      try {
+        await this.$post('post_user_rating/', null, this.formData, 'data');
+      } catch (error) {
+        console.error("提交管理员设置失败:", error);
       }
     },
     async receiveMessages() {
       try {
-        await this.$get('home/', {}, 'data');
+        await this.$get('home/', null, 'data');
       } catch (error) {
         console.error("接收对话消息失败:", error);
       }
@@ -106,7 +136,7 @@ export default {
     // api
     handleSubmit() {
       // 提交表单数据，并通过事件返回到父组件
-      this.$post('submit', {}, this.formData, 'data');
+      this.$post('submit', null, this.formData, 'data');
       this.formData = {
         defaultBot: 'GPT 3.5',
         maxRate: 100000000,
@@ -116,7 +146,12 @@ export default {
       };
       this.closeModal();
     },
-
+    handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (file) {
+        this.uploadedFile = file;
+      }
+    },
     // 切换临时聊天开关
     toggleTempChat() {
       this.isTempChatEnabled = !this.isTempChatEnabled;
@@ -151,7 +186,6 @@ export default {
       this.hideMenu();
     },
     copyLink() {
-      // 模拟复制链接
       navigator.clipboard.writeText(window.location.href).then(() => {
         alert("链接已复制到剪贴板");
         console.log("链接已复制");
@@ -168,12 +202,7 @@ export default {
     }
   },
   mounted() {
-    // 页面加载时开始接收消息
-    this.receiveMessages();
     document.addEventListener('click', this.handleOutsideClick.bind(this));
-
-    // 每隔0.5秒检查一次新消息
-   // this.messagePolling = setInterval(this.receiveMessages, 5000);
   },
 
   beforeDestroy() {
@@ -253,7 +282,14 @@ export default {
 
       <!-- 输入区域 -->
       <footer style="display: flex; align-items: center; border-top: 1px solid #ddd; padding: 10px; background-color: #f7f7f7; position: sticky; bottom: 0; width: 100%;">
-      <textarea v-model="newMessage"
+        <label for="file-upload" style="cursor: pointer; margin-right: 10px; position: relative;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
+            <path d="M21.44 11.05l-8.84 8.84a5.5 5.5 0 0 1-7.78-7.78l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.19 9.19a2 2 0 0 1-2.83-2.83l8.84-8.84"/>
+          </svg>
+          <input id="file-upload" type="file" @change="handleFileUpload" style="display: none;" />
+          <span style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; visibility: hidden; white-space: nowrap;" class="tooltip">附加文件</span>
+        </label>
+        <textarea v-model="newMessage"
                 placeholder="输入您的消息..."
                 rows="2"
                 style="flex-grow: 1; border: 1px solid #ddd; border-radius: 4px; padding: 10px; resize: none; overflow-y: auto;"></textarea>

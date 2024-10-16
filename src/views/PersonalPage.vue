@@ -33,7 +33,7 @@
       </div>
       <div class="search-filter" :style="searchFilterStyles">
         <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" :style="searchInputStyles" />
-        <button @click="search" :style="searchButtonStyles">🔍 搜索</button>
+        <button @click="search" :style="searchButtonStyles">🔍搜索</button>
         <select v-model="selectedFilter" :style="filterSelectStyles">
           <option v-for="filter in filters" :key="filter.value" :value="filter.value">
             {{ filter.label }}
@@ -427,7 +427,7 @@ export default {
       this.$router.push({ path: `/BotDetail` });
     },
     search() {
-      
+
     },
     followUser() {
 

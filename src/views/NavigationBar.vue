@@ -1,6 +1,17 @@
 <script>
 export default {
+  data() {
+    return {
+      userData: null, // 用于存储从 login 组件返回的用户数据
+    };
+  },
+  methods: {
+    // 跳转到登录页面
+    goToLogin() {
+      this.$router.push({ path: "/login" });
+    },
 
+  }
 }
 </script>
 
@@ -27,14 +38,20 @@ export default {
       <div>
         导出Bot评分
       </div>
+      <div @click="goToLogin" style="cursor: pointer">
+      登录
+      </div>
     </div>
 
-    <div style="margin-top: auto;">
-      <div>
-        用户头像
-      </div>
-      <div>
-        用户名
+    <div>
+      <!-- 显示用户信息 -->
+      <div v-if="userData" style="margin-top: auto;">
+        <div>
+          <img :src="userData.avatar" alt="用户头像" style="width: 50px; height: 50px;" />
+        </div>
+        <div>
+          用户名: {{ userData.username }}
+        </div>
       </div>
     </div>
   </div>

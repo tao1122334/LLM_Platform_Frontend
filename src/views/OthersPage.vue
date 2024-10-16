@@ -55,5 +55,5 @@ export default {
 </script>
 
 <style scoped>
-/* 可根据需要自定义样式 */
+
 </style>

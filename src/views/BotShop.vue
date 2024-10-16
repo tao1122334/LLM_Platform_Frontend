@@ -32,7 +32,8 @@ export default {
           }
         }
       ],
-      hoverEffect: -1
+      hoverEffect: -1,
+      data: null,
     };
   },
   methods: {
@@ -53,7 +54,16 @@ export default {
     goToAuthorPage(author) {
       // 跳转到作者个人主页
       this.$router.push({ path: `/PersonalPage` });
-    }
+    },
+    async getBots() {
+      // 获取机器人列表
+      try {
+        await this.$get('get_bot_msg/3/', {}, 'data');
+        console.log(this.data);
+      } catch (error) {
+        console.error("Error fetching bots:", error);
+      }
+    },
   }
 };
 
@@ -87,6 +97,9 @@ export default {
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <button class="recommend" @click="recommend">
           推荐
+        </button>
+        <button class="recommend" @click="getBots">
+          获取
         </button>
         <div style="position: relative;">
           <button
