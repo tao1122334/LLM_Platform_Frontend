@@ -51,6 +51,10 @@ export default {
       console.log('More options clicked');
     },
   },
+  mounted() {
+    //   todo: 根据跳转传来的id，向后端请求个人信息 url:get_user_msg
+
+  }
 };
 </script>
 

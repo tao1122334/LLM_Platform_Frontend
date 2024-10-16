@@ -95,6 +95,7 @@ export default {
         this.hideMenu();
       }
     },
+    // todo: 后端warnmsg如果有信息，就弹出来
     async sendMessage() {
       if (this.newMessage.trim() !== "") {
         this.messages.push({ text:this.newMessage, sender: "me" });

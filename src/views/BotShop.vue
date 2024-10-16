@@ -47,10 +47,12 @@ export default {
     recommend() {
       console.log("recommend");
     },
+    // todo: 跳转时要传机器人的id
     goToDetails(title) {
       // 跳转到机器人详细页面
       this.$router.push({ path: `/BotDetail` });
     },
+    // todo: 跳转时要传作者的id 键名应该是creator_id
     goToAuthorPage(author) {
       // 跳转到作者个人主页
       this.$router.push({ path: `/PersonalPage` });
@@ -73,7 +75,7 @@ export default {
 
 </script>
 <!--todo: 在社区旁边增加一个发帖键-->
-<!--todo: 是点作者头像跳转到作者的空间，而不是点评论-->
+
 <template>
   <div style="width: 100vw; height: 100vh; display: flex; flex-direction: column;">
     <!-- 固定顶部搜索栏 -->

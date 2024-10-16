@@ -95,6 +95,7 @@ export default {
     };
   },
   methods: {
+    //todo: 是点作者头像跳转到作者的空间，而不是点评论
     goToPost(postId) {
       console.log("跳转到社区帖子：", postId);
       this.$router.push({ path: `/OthersPage` });
@@ -103,6 +104,9 @@ export default {
     like(){},
     // todo: url:collectbot POST 传botid（键名）, 检查后端的返回信息 result:added, 如果是未添加，则是add, 出现弹窗提示
     collect(){}
+  },
+  mounted() {
+  //   todo: 根据跳转传来的id，向后端请求机器人信息 url:get_bot_msg
   }
 };
 </script>
