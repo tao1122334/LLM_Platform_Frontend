@@ -50,12 +50,13 @@
           <h3 :style="robotNameStyles">{{ robot.name }}</h3>
         </div>
         <p :style="robotDescriptionStyles">{{ robot.description }}</p>
-        <button @click="viewRobot(robot)" :style="viewButtonStyles">{{ viewButtonText }}</button>
+        <button @click="setRobot(robot)" :style="viewButtonStyles">{{ viewButtonText }}</button>
       </div>
     </div>
   </div>
 </template>
 <!--todo: 自定义机器人详情界面，不应该弹出对话，请参考figma或者再向我确认-->
+//this.$router.push({ path: `/BotManager` });这里弹到机器人管理界面,具体功能并未详细设计
 <script>
 export default {
   name: 'PersonalPage',
@@ -66,7 +67,7 @@ export default {
     },
     userSpaceName: {
       type: String,
-      default: '个人空间'
+      default: `个人空间`
     },
     userHandle: {
       type: String,
@@ -396,6 +397,7 @@ export default {
   },
   data() {
     return {
+      id: 1,
       searchQuery: '',
       selectedFilter: 'all',
       robots: [
@@ -423,8 +425,8 @@ export default {
     selectOption(option) {
 
     },
-    viewRobot(robot) {
-      this.$router.push({ path: `/BotDetail` });
+    setRobot(robot) {
+      this.$router.push({ path: `/BotManager` });
     },
     search() {
 
@@ -439,6 +441,10 @@ export default {
 
     }
   },
+  mounted() {
+    this.id = this.$route.query.creator_id;
+    console.log(this.id);
+  }
 };
 </script>
 

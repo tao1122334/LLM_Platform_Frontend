@@ -8,6 +8,7 @@ export default {
       filters: ["best of the month", "best of all time", "most visited"],
       bots: [
         {
+          id: 1,
           title: "个人说明书",
           description: "创建属于你的个人说明书，并展示给他人使用。",
           views: 207,
@@ -15,11 +16,13 @@ export default {
           comments: 14,
           image: "https://via.placeholder.com/50", // 机器人头像
           author: {
+            id: 1,
             name: "PlayWithAI",
             avatar: "https://via.placeholder.com/24", // 作者头像
           }
         },
         {
+          id: 2,
           title: "合成新元素",
           description: "通过不同元素合成，探索新的组合和用途。",
           views: 620,
@@ -27,6 +30,7 @@ export default {
           comments: 22,
           image: "https://via.placeholder.com/50",
           author: {
+            id: 2,
             name: "SpaceKid",
             avatar: "https://via.placeholder.com/24",
           }
@@ -48,15 +52,17 @@ export default {
       console.log("recommend");
     },
     // todo: 跳转时要传机器人的id
-    goToDetails(title) {
-      // 跳转到机器人详细页面
-      this.$router.push({ path: `/BotDetail` });
+    // 跳转到机器人详细页面，传递机器人 ID
+    goToDetails(botId) {
+      this.$router.push({ name: 'BotDetail', query: { bot_id: botId } });
     },
     // todo: 跳转时要传作者的id 键名应该是creator_id
-    goToAuthorPage(author) {
-      // 跳转到作者个人主页
-      this.$router.push({ path: `/PersonalPage` });
+    // 跳转到作者个人主页，传递作者 ID
+    goToAuthorPage(creatorId) {
+      this.$router.push({ name: 'OthersPage', query: { creator_id: creatorId } });
     },
+
+
     async getBots() {
       // 获取机器人列表
       try {
@@ -75,6 +81,7 @@ export default {
 
 </script>
 <!--todo: 在社区旁边增加一个发帖键-->
+//社区的功能在别的组件已经完成
 
 <template>
   <div style="width: 100vw; height: 100vh; display: flex; flex-direction: column;">
@@ -156,7 +163,7 @@ export default {
               <!-- 机器人标题 -->
               <h3
                   style="font-size: 18px; font-weight: 600; color: #333; margin: 0; cursor: pointer;"
-                  @click.stop="goToDetails(bot.title)"
+                  @click.stop="goToDetails(bot.id)"
               >
                 {{ bot.title }}
               </h3>
@@ -166,11 +173,11 @@ export default {
                     :src="bot.author.avatar"
                     alt="Author Image"
                     style="width: 20px; height: 20px; border-radius: 50%; cursor: pointer; margin-right: 6px;"
-                    @click.stop="goToAuthorPage(bot.author)"
+                    @click.stop="goToAuthorPage(bot.author.id)"
                 />
                 <span
                     style="font-size: 14px; color: #555; cursor: pointer;"
-                    @click.stop="goToAuthorPage(bot.author)"
+                    @click.stop="goToAuthorPage(bot.author.id)"
                 >
                     {{ bot.author.name }}
                   </span>

@@ -4,6 +4,7 @@ import IconSupport from '@/components/icons/IconSupport.vue';
 import IconDocumentation from "@/components/icons/IconDocumentation.vue";
 import IconEcosystem from "@/components/icons/IconEcosystem.vue";
 import IconTooling from "@/components/icons/IconTooling.vue";
+import FileRenderer from "@/views/FileRenderer.vue";
 
 export default {
   name: 'Home',
@@ -12,7 +13,31 @@ export default {
     IconEcosystem,
     IconDocumentation,
     IconCommunity,
-    IconSupport
+    IconSupport,
+    FileRenderer,
+  },
+  props: {
+    msg: String,
+    chatWidth: {
+      type: String,
+      default: '40vw'  // 默认宽度为100%
+    },
+    chatHeight: {
+      type: String,
+      default: '80vh'  // 默认高度为400px
+    },
+    homeWidth: {
+      type: String,
+      default: '95vw'  // 默认宽度为15vw
+    },
+    homeHeight: {
+      type: String,
+      default: '100vh'  // 默认高度为95vh
+    },
+    inputHeight: {
+      type: String,
+      default: '10vh'  // 默认高度为10vh
+    }
   },
   data() {
     return {
@@ -20,29 +45,11 @@ export default {
       isTempChatEnabled: false, // 控制临时聊天开关
       isAdmin: true, // 假设当前用户是管理员
       showAdminSettings: false, // 控制管理员设置显示
-      messages: [ // 修改后的消息数据结构
-        {
-          text: "你好！",
-          image: "src/assets/login.jpg",
-          file: "",
-          sender: "me"
-        },
-        {
-          text: "欢迎来到LLM ！",
-          image: "",
-          file: "",
-          sender: "assistant"
-        },
-        {
-          text: "以下是新消息",
-          image: "src/assets/login.jpg",
-          file: "",
-          sender: "system"
-        }
-      ],
-      newMessage: "",  // 新消息内容
-      uploadedFile: null,
+      messages: [],
+      newMessage: "",  // 新消息内容,
+      uploadedFiles: [],
       hoveredIcon: "", // 用于追踪悬停图标状态
+      attachFile: false,
       formData: {
         defaultBot: 'GPT 3.5',  // 默认选项
         maxRate: 100000000,  // 最大频率
@@ -55,17 +62,15 @@ export default {
       group_id: 1,
       url: '',
       user_id: null,
-
+      bots: [
+        {id: 3, name: 'ChatGPT'},
+        {id: 4, name: 'GPT 3.5'},
+        {id: 5, name: 'GPT 4.0'},
+      ],
+      selectedBot: {id: 3, name: 'ChatGPT'},        // 选中的机器人
+      showBotList: false,        // 控制机器人列表弹窗的显示
+      messageData: null
     };
-  },
-
-  created() {
-    this.userId = this.$route.query.id;
-  },
-  watch: {
-    '$route'(newQuery) {
-      this.userId = newQuery.id;
-    }
   },
   methods: {
     // 切换设置菜单显示
@@ -95,18 +100,54 @@ export default {
         this.hideMenu();
       }
     },
-    // todo: 后端warnmsg如果有信息，就弹出来
+
+    addMessageMe(text, file){
+      const newMsg = {
+        id: this.messages.length + 1,
+        text: text,
+        sender: "me",
+        file: file,
+        photo: "src/assets/login.jpg",
+        timestamp: new Date().toISOString(),
+      };
+      this.messages.push(newMsg);
+    },
+    addMessageAssistant(text, file){
+      const newMsg = {
+        id: this.messages.length + 1,
+        text: text,
+        sender: "assistant",
+        file: file,
+        timestamp: new Date().toISOString(),
+      };
+      this.messages.push(newMsg);
+    },
+    addMessageSystem(text){
+      const newMsg = {
+        id: this.messages.length + 1,
+        text: text,
+        sender: "system",
+        timestamp: new Date().toISOString(),
+      };
+      this.messages.push(newMsg);
+    },
     async sendMessage() {
       if (this.newMessage.trim() !== "") {
-        this.messages.push({ text:this.newMessage, sender: "me" });
+        this.addMessageMe(this.newMessage, this.uploadedFiles);
+        this.newMessage = "";
+        await this.$nextTick(() => {
+          const textarea = this.$refs.input;
+          textarea.style.height = 'auto'; // 重置高度
+        });
+        this.uploadedFiles=[];
         this.url = 'chat/'+ this.bot_id + '/' + this.group_id + '/';
         const form = new FormData();
         form.append('chat_method', 'common');
         form.append('chat_content', this.newMessage);
-        form.append('userfile', this.uploadedFile);
+        form.append('userfile', this.uploadedFiles);
         await this.$post(this.url, null, form, 'data');
         this.messages.push({ text: this.data.fields.bot_text+" | "+this.data.chat_method, sender: "assistant" });
-        this.newMessage = "";
+
       }else {
         alert("消息不能为空");
       }
@@ -125,20 +166,20 @@ export default {
         console.error("提交管理员设置失败:", error);
       }
     },
+    // todo: 后端warnmsg如果有信息，就弹出来  已完成
     async receiveMessages() {
       try {
-        await this.$get('home/', null, 'data');
+        await this.$get('warnmsg/', null, 'data');
+        if (this.data.warnmsg) {
+          alert(this.data.warnmsg);
+        }
       } catch (error) {
         console.error("接收对话消息失败:", error);
       }
     },
-    isImage(filePath) {
-      return filePath && (filePath.endsWith('.jpg') || filePath.endsWith('.jpeg') || filePath.endsWith('.png') || filePath.endsWith('.gif'));
-    },
-    // api
     handleSubmit() {
       // 提交表单数据，并通过事件返回到父组件
-      this.$post('submit', null, this.formData, 'data');
+      this.postAdminSettings();
       this.formData = {
         defaultBot: 'GPT 3.5',
         maxRate: 100000000,
@@ -148,11 +189,27 @@ export default {
       };
       this.closeModal();
     },
+    showAttachment(e) {
+      this.attachFile = true;
+      e.target.style.backgroundColor = '#e0e0e0'
+    },
+    hideAttachment(e) {
+      this.attachFile = false;
+      e.target.style.backgroundColor = '#f1f1f1'
+    },
     handleFileUpload(event) {
-      const file = event.target.files[0];
-      if (file) {
-        this.uploadedFile = file;
+      const files = event.target.files;
+      if (files.length > 0) {
+        // 将文件逐个推入数组
+        for (let i = 0; i < files.length; i++) {
+          this.uploadedFiles.push(files[i]);
+        }
       }
+      event.target.value = ''; // 清空输入框以允许上传同样的文件
+    },
+    // 移除文件
+    removeFile(index) {
+      this.uploadedFiles.splice(index, 1); // 删除文件
     },
     // 切换临时聊天开关
     toggleTempChat() {
@@ -164,13 +221,12 @@ export default {
       }
     },
     // 菜单项点击事件
-    // TODO: url: del_messagelist method: DELETE 并且记得更新message
+    // TODO: url: del_messagelist method: DELETE 并且记得更新message 已完成
     deleteChatHistory() {
       // 清空消息列表
       this.messages = [];
       this.messages.push({ text: '之前的聊天记录已清空，以下是新消息', sender: "system" });
-      alert("对话记录已删除（模拟功能）");
-      console.log("对话记录已删除");
+      this.$delete('del_messagelist/', null, 'data');
       this.hideMenu();
     },
     addToDesktop() {
@@ -202,11 +258,45 @@ export default {
     },
     hideTooltip() {
       this.hoveredIcon = "";
-    }
+    },
+    inputTextArea(){
+      const textarea = this.$refs.input;
+      textarea.style.height = 'auto'; // 重置高度
+      textarea.style.height = Math.min(textarea.scrollHeight-15, 150) + 'px'; // 限制最大高度
+    },
+    handleInput(event) {
+      this.inputTextArea();
+      // 检查输入中是否出现 @，如果有就显示机器人列表
+      this.showBotList = this.newMessage.includes('@');
+    },
+    selectBot(bot) {
+      // 选择机器人后，将其设置为当前对话的机器人，并关闭弹窗
+      this.selectedBot = bot;
+      this.showBotList = false;
+
+      // 清除 @ 符号，并将机器人的名字加入输入框内容
+      this.newMessage = this.newMessage.replace('@', '') + bot.name;
+    },
+    async getMessageList() {
+      try {
+        await this.$get(
+            'messagelist/',
+            null,
+            'messageData',
+            '',
+            ''
+        );
+        //处理发送回来的数据
+        //this.messageData;
+      } catch (error) {
+        console.error(error);
+      }
+    },
   },
   mounted() {
     document.addEventListener('click', this.handleOutsideClick.bind(this));
-    //TODO: 向后端请求主页的消息记录，并且将message设置为请求的列表  method: GET url: messagelist
+    //TODO: 向后端请求主页的消息记录，并且将message设置为请求的列表  method: GET url: messagelist 已完成
+    this.getMessageList();
   },
 
   beforeDestroy() {
@@ -216,9 +306,12 @@ export default {
 };
 </script>
 
-<!--TODO: 输入栏输入@的时候弹出弹窗，弹窗中有列表，选择之后在输入框上方显示正在对话的机器人名字-->
+<!--TODO: 输入栏输入@的时候弹出弹窗，弹窗中有列表，选择之后在输入框上方显示正在对话的机器人名字  已完成-->
+
 <template>
-  <div class="home-container">
+  <div
+      class="home-container"
+  >
     <!-- 左边：临时聊天相关设置 -->
     <aside class="left-sidebar">
       <div class="switch-container">
@@ -231,77 +324,164 @@ export default {
     </aside>
 
     <!-- 中间：聊天区域 -->
-    <main class="chat-area">
-        <!-- 聊天消息列表区域 -->
-        <section class="chat-box">
-          <!-- 使用 v-for 循环渲染每条消息 -->
-          <div v-for="(message, index) in messages"
-               :key="index"
-               :class="['message', message.sender === 'me' ? 'my-message' : message.sender === 'assistant' ? 'assistant-message' : 'center-message']">
+    <main
+        class="chat-area"
+        style="display: flex; flex-direction: column; gap: 10px; padding: 10px; "
+    >
+      <section
+          class="chat-box"
+          :style="{
+            width: chatWidth,
+            height: chatHeight,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            padding: '10px'
+          }">
 
-            <!-- 左侧（机器人 assistant）头像使用内联 <img> 标签渲染 -->
-            <img v-if="message.sender === 'assistant'"
-                 :src="message.image"
-                 alt="机器人头像"
-                 class="avatar"
-                 style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"
-                 loading="lazy" />
+        <!-- 使用 v-for 循环渲染每条消息 -->
+        <div
+            v-for="(message, index) in messages"
+            :key="index"
+            :class="['message', message.sender === 'me' ? 'my-message' : message.sender === 'assistant' ? 'assistant-message' : 'center-message']"
+            style="display: flex; width: 100%; flex-direction: column">
 
-            <!-- 聊天内容 -->
-            <p class="message-content" v-if="message.sender === 'assistant' || message.sender === 'me'">{{ message.text }}</p>
-
-            <!-- 右侧（用户 me）头像使用内联 <img> 标签渲染 -->
-            <img v-if="message.sender === 'me'"
-                 :src="message.image"
-                 alt="用户头像"
-                 class="avatar"
-                 style="width: 40px; height: 40px; border-radius: 50%; margin-left: 10px;"
-                 loading="lazy" />
-
-            <!-- 居中（系统提示 system）消息 -->
-            <template v-if="message.sender === 'system'">
-              <div class="center-container">
-                <div class="line"></div>
-                <span class="center-text">{{ message.text }}</span>
-                <div class="line"></div>
-              </div>
-            </template>
-
-            <!-- 显示用户上传的文件（如果是图片格式） -->
-            <img v-if="isImage(message.file)&&message.sender === 'me'"
-                 :src="message.file"
-                 alt="用户上传的图片"
-                 class="message-file"
-                 style="max-width: 200px; margin: 10px 0;"
-                 loading="lazy" />
-
-            <!-- 显示机器人回复的文件（如果是图片格式） -->
-            <img v-if="isImage(message.file)&&message.sender === 'assistant'"
-                 :src="message.file"
-                 alt="机器人回复的图片"
-                 class="message-file"
-                 style="max-width: 200px; margin: 10px 0;"
-                 loading="lazy" />
+          <!-- 文件展示（无论是用户还是机器人发送） -->
+          <div style="display: flex; width: 100%; justify-content: center; margin-top: 5px;">
+            <FileRenderer v-if="message.file" :files="message.file"/>
           </div>
-        </section>
+          <!-- 用户消息在右侧 -->
+          <div
+              v-if="message.sender === 'me'"
+              style="display: flex; justify-content: flex-end; width: 100%; align-items: center; gap: 10px;">
+            <p
+                style="background-color: #007bff; color: white; padding: 10px 15px; border-radius: 10px; max-width: 60%; word-wrap: break-word;">
+              {{ message.text }}
+            </p>
+            <img
+                :src="message.photo"
+                alt="用户头像"
+                class="avatar"
+                style="width: 40px; height: 40px; border-radius: 50%;"/>
+          </div>
+
+          <!-- 机器人消息在左侧 -->
+          <div
+              v-else-if="message.sender === 'assistant'"
+              style="display: flex; justify-content: flex-start; width: 100%; align-items: center; gap: 10px;">
+            <img
+                :src="message.photo"
+                alt="机器人头像"
+                class="avatar"
+                style="width: 40px; height: 40px; border-radius: 50%;"/>
+            <p
+                style="background-color: #f1f1f1; color: black; padding: 10px 15px; border-radius: 10px; max-width: 60%; word-wrap: break-word;">
+              {{ message.text }}
+            </p>
+          </div>
+
+          <!-- 系统提示消息居中显示 -->
+          <template v-else-if="message.sender === 'system'">
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%; gap: 10px;">
+              <div style="flex: 1; height: 1px; background-color: #ddd;"></div>
+              <span style="padding: 0 10px; color: #666;">{{ message.text }}</span>
+              <div style="flex: 1; height: 1px; background-color: #ddd;"></div>
+            </div>
+          </template>
+
+
+
+        </div>
+      </section>
 
       <!-- 输入区域 -->
-      <footer style="display: flex; align-items: center; border-top: 1px solid #ddd; padding: 10px; background-color: #f7f7f7; position: sticky; bottom: 0; width: 100%;">
-        <label for="file-upload" style="cursor: pointer; margin-right: 10px; position: relative;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-paperclip">
-            <path d="M21.44 11.05l-8.84 8.84a5.5 5.5 0 0 1-7.78-7.78l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.19 9.19a2 2 0 0 1-2.83-2.83l8.84-8.84"/>
-          </svg>
-          <input id="file-upload" type="file" @change="handleFileUpload" style="display: none;" />
-          <span style="position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); background: #000; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; visibility: hidden; white-space: nowrap;" class="tooltip">附加文件</span>
-        </label>
-        <textarea v-model="newMessage"
-                placeholder="输入您的消息..."
-                rows="2"
-                style="flex-grow: 1; border: 1px solid #ddd; border-radius: 4px; padding: 10px; resize: none; overflow-y: auto;"></textarea>
-        <button @click="sendMessage"
-                style="padding: 10px 20px; margin-left: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; transition: background-color 0.3s;">
+      <footer
+          :style="{
+            width: chatWidth,
+            overflowY: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+            padding: '10px'
+          }">
+        <!-- 显示选中的机器人名称 -->
+        <div v-if="selectedBot"
+             style="font-size: 12px; font-weight: bold; text-align: center; padding: 10px; border-bottom: 1px solid #ddd;">
+          正在与: {{ selectedBot.name }}
+        </div>
+        <div style="display: flex; width: 100%;">
+          <FileRenderer :files="uploadedFiles"/>
+        </div>
+
+        <div style="display: flex; width: 100%; flex-shrink: 0">
+
+          <!-- 文件上传按钮 -->
+          <label
+              for="file-upload"
+              style="cursor: pointer; display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background-color: #f1f1f1; transition: background-color 0.3s;"
+              @mouseover="showAttachment"
+              @mouseleave="hideAttachment">
+
+            <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round">
+              <path d="M21.44 11.05l-8.84 8.84a5.5 5.5 0 0 1-7.78-7.78l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.19 9.19a2 2 0 0 1-2.83-2.83l8.84-8.84"/>
+            </svg>
+            <input
+                id="file-upload"
+                type="file"
+                multiple
+                style="display: none;"
+                @change="handleFileUpload"
+            />
+            <span
+                v-if="attachFile"
+                style="position: relative; bottom: 100%; left: 50%; background: #000; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 12px; white-space: nowrap;">
+              附加文件
+            </span>
+          </label>
+          <!-- 输入框 -->
+          <textarea
+              v-model="newMessage"
+              ref="input"
+              placeholder="输入您的消息..."
+              rows="1"
+              style="flex-grow: 1; border: 1px solid #ddd; border-radius: 20px; padding: 10px 15px; resize: none; overflow-y: auto; max-height: 150px; font-size: 14px;"
+              @input="handleInput"
+          ></textarea>
+          <!-- 发送按钮 -->
+          <button
+          style="height: 40px; padding: 10px 20px; margin-left: 10px; color: white; border: none; border-radius: 20px; cursor: pointer; transition: background-color 0.3s; background-color: #007bff;"
+            :style="{ backgroundColor: newMessage.trim() ? '#007bff' : '#bbb', cursor: newMessage.trim() ? 'pointer' : 'not-allowed' }"
+            @mouseover="(e) => { if (newMessage.trim()) e.target.style.backgroundColor = '#0056b3'; }"
+            @mouseleave="(e) => { if (newMessage.trim()) e.target.style.backgroundColor = '#007bff'; }"
+            @click="sendMessage"
+          >
           发送
-        </button>
+          </button>
+          <!-- 机器人选择弹窗 -->
+          <ul
+              v-if="showBotList"
+              style="position: absolute; max-width: 30%; background-color: white; border: 1px solid #ddd; border-radius: 8px; padding: 5px; list-style: none; margin: 0; max-height: 120px; overflow-y: auto; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); z-index: 10;">
+            <li
+                v-for="(bot, index) in bots"
+                :key="index"
+                @click="selectBot(bot)"
+                style="padding: 8px 10px; cursor: pointer; font-size: 14px; transition: background-color 0.2s;"
+                @mouseover="(e) => e.target.style.backgroundColor = '#f0f0f0'"
+                @mouseleave="(e) => e.target.style.backgroundColor = 'white'">
+              {{ bot.name }}
+            </li>
+          </ul>
+        </div>
       </footer>
     </main>
 
@@ -387,13 +567,13 @@ export default {
 .home-container {
   display: flex;
   height: 100%;
-  width: 100%;
+  max-height: 100vh;
   flex-grow: 1;
 }
 /*-------------------------------------------------------------------------------*/
 /* 左侧栏样式 */
 .left-sidebar {
-  width: 20%;
+  width: 30%;
   padding: 20px;
   background-color: #f7f7f7;
   border-right: 1px solid #ddd;
@@ -458,195 +638,9 @@ input:checked + .slider {
 input:checked + .slider:before {
   transform: translateX(26px);
 }
-/*-------------------------------------------------------------------------------*/
-/* 中间聊天区域样式 */
-.chat-area {
-  width: 60%;
-  height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px;
-  background-color: #fff;
-  flex-grow: 1;
-}
-.chat-box {
-  height: calc(100% - 60px);
-  overflow-y: auto;
-  padding: 10px;
-  border: 1px solid #ddd;
-}
-
-/* 消息样式 */
-.message {
-  display: flex;
-  margin: 10px 0;
-}
-
-/* 左侧的消息（assistant） */
-.assistant-message {
-  justify-content: flex-start;
-}
-
-.assistant-message .message-content {
-  background-color: #e5e5ea;
-  border-radius: 15px 15px 15px 0;
-  padding: 10px;
-  color: #000;
-  max-width: 60%;
-}
-
-/* 右侧的消息（用户） */
-.my-message {
-  justify-content: flex-end;
-}
-
-.message-content {
-  background-color: #007bff;
-  border-radius: 15px 15px 0 15px;
-  padding: 10px;
-  color: white;
-  max-width: 60%;
-}
-
-/* 图片消息样式 */
-.message-image {
-  margin: 10px 0;
-  max-width: 200px;
-  border-radius: 8px;
-}
-
-/* 文件消息样式 */
-.message-file {
-  color: #007bff;
-  text-decoration: underline;
-  margin: 10px 0;
-  cursor: pointer;
-}
-
-/* 系统提示消息（居中） */
-.center-message {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 10px 0;
-}
-
-/* 居中消息容器 */
-.center-container {
-  display: flex;
-  align-items: center;
-  color: #a0a0a0;
-  font-size: 14px; /* 较小字体 */
-  width: 100%;
-}
-
-/* 居中消息左右两侧的分隔线 */
-.line {
-  height: 1px;
-  background-color: #a0a0a0;
-  flex-grow: 1; /* 自适应宽度 */
-  margin: 0 10px; /* 间距 */
-}
-
-/* 居中消息的文字样式 */
-.center-text {
-  color: #a0a0a0;
-  font-style: italic; /* 斜体显示 */
-}
-
-/* 头像样式 */
-.avatar {
-  width: 40px;
-  height: 40px;
-  margin: 0 10px;
-  display: inline-flex; /* 确保组件对齐 */
-  align-self: flex-start; /* 顶部对齐 */
-}
-
-/* 左侧（assistant）消息样式 */
-.assistant-message {
-  justify-content: flex-start;
-  align-items: center; /* 确保头像与消息框垂直对齐 */
-}
-
-/* 右侧（用户）消息样式 */
-.my-message {
-  justify-content: flex-end;
-  align-items: center; /* 确保头像与消息框垂直对齐 */
-}
-
-/* 图标组样式 */
-.icon-group {
-  display: flex;
-  justify-content: flex-start; /* 图标左对齐 */
-  margin-top: 5px; /* 与消息框之间的间距 */
-  gap: 8px; /* 图标之间的间距 */
-}
-
-/* 单个图标容器 */
-.icon-item {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-  cursor: pointer; /* 鼠标悬停时显示手型 */
-}
-
-/* 图标样式 */
-.icon-img {
-  width: 24px;
-  height: 24px;
-}
-
-.tooltip {
-  position: absolute;
-  bottom: 30px; /* 位于图标上方 */
-  left: 50%;
-  transform: translateX(-50%); /* 居中对齐 */
-  background: rgba(0, 0, 0, 0.75);
-  color: white;
-  padding: 5px 10px;
-  border-radius: 4px;
-  font-size: 12px; /* 较小的字体 */
-  white-space: nowrap; /* 防止提示框内容换行 */
-  z-index: 10; /* 显示在最上层 */
-  opacity: 0;
-  transition: opacity 0.3s ease; /* 添加淡入淡出效果 */
-}
-
-.icon-item:hover .tooltip {
-  opacity: 1; /* 鼠标悬停时显示提示框 */
-}
 
 /*-------------------------------------------------------------------------------*/
-/* 输入框样式 */
-.input-area {
-  display: flex;
-}
 
-textarea {
-  flex-grow: 1;
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  resize: none;
-  overflow-y: auto;
-}
-
-.sendButton {
-  padding: 10px;
-  margin-left: 10px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-.sendButton:hover {
-  background-color: #888; /* 鼠标悬停时按钮颜色 */
-}
-
-/*-------------------------------------------------------------------------------*/
 /* 右侧栏样式 */
 .right-sidebar {
   width: 25%;

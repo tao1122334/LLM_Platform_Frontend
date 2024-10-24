@@ -13,6 +13,7 @@ import BotShop from "@/views/BotShop.vue";
 import Hw1 from "@/views/hw1.vue";
 import BotDetail from "@/views/BotDetail.vue";
 import OthersPage from "@/views/OthersPage.vue";
+import BotManager from "@/views/BotManager.vue";
 
 // import VueLazyload from "vue-lazyload";
 const routes = [
@@ -44,12 +45,17 @@ const routes = [
     {
         path: '/BotDetail',
         name: 'BotDetail',
-        component: BotDetail
+        component: BotDetail,
     },
     {
         path: '/OthersPage',
         name: 'OthersPage',
-        component: OthersPage
+        component: OthersPage,
+    },
+    {
+        path: '/BotManager',
+        name: 'BotManager',
+        component: BotManager
     }
 ];
 

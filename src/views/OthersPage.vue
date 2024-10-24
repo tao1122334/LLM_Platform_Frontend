@@ -31,6 +31,11 @@ export default {
   components: {
     PersonalPage,
   },
+  data(){
+    return {
+      userData: null
+    }
+  },
   methods: {
     handleCreateRobot() {
       console.log('Creating a new robot...');
@@ -50,9 +55,19 @@ export default {
     handleMoreOptions() {
       console.log('More options clicked');
     },
+    async getUserMsg(id) {
+      try {
+        await this.$get('get_user_msg/', {id}, null, 'userData');
+        //这里需要对传回来的个人信息结构进行分析,处理this.userData
+      } catch (error) {
+        console.error('Error fetching user data: ', error);
+      }
+    },
   },
   mounted() {
-    //   todo: 根据跳转传来的id，向后端请求个人信息 url:get_user_msg
+    //   todo: 根据跳转传来的id，向后端请求个人信息 url:get_user_msg 已完成
+    const id = this.$route.query.creator_id;
+    this.getUserMsg(id);
 
   }
 };

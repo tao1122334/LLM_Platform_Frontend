@@ -9,7 +9,7 @@
         </button>
         <img :src="author.avatar" alt="Author Avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 12px;" />
         <div>
-          <h3 style="margin: 0; font-size: 18px; font-weight: 600;">{{ bot.title }}</h3>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 600;">{{ bot.title }} {{bot.id}}</h3>
           <div style="font-size: 14px; color: #888;">{{ author.name }} 发布于 {{ bot.releaseDate }}</div>
         </div>
       </div>
@@ -49,12 +49,7 @@
           <strong>{{ config.name }}</strong>: {{ config.value }}
         </div>
 
-        <!-- 社区内容（展示社区帖子）-->
-        <h4 style="font-size: 16px; font-weight: 600; margin: 20px 0 10px;">社区</h4>
-        <div v-for="(post, index) in communityPosts" :key="index" style="padding: 12px; border-bottom: 1px solid #eee; cursor: pointer;" @click="goToPost(post.id)">
-          <div style="font-size: 14px; font-weight: 600; color: #333;">{{ post.title }}</div>
-          <div style="font-size: 12px; color: #666; margin-top: 4px;">{{ post.author }} · {{ post.date }}</div>
-        </div>
+        <Community></Community>
       </div>
     </div>
   </div>
@@ -62,10 +57,12 @@
 
 <script>
 import Home from "@/views/Home.vue";
+import Community from "@/views/Community.vue";
 
 export default {
   components: {
-    Home
+    Home,
+    Community,
   },
   data() {
     return {
@@ -75,6 +72,7 @@ export default {
         avatar: "https://via.placeholder.com/50"
       },
       bot: {
+        id: 1,
         title: "个人说明书",
         releaseDate: "2024-09-19 08:54",
         favorites: 14,
@@ -85,28 +83,79 @@ export default {
         configurations: [
           { name: "配置项 1", value: "功能 X 已开启" },
           { name: "配置项 2", value: "支持语音输入" }
-        ]
+        ],
       },
-      // 社区帖子示例
-      communityPosts: [
-        { id: 1, title: "如何使用该机器人？", author: "AI Lover", date: "2024-09-20" },
-        { id: 2, title: "分享我的使用心得", author: "Tech Geek", date: "2024-09-21" }
-      ]
+      likeData: null,
+      collectData: null,
+      botData: null,
     };
   },
   methods: {
-    //todo: 是点作者头像跳转到作者的空间，而不是点评论
-    goToPost(postId) {
-      console.log("跳转到社区帖子：", postId);
-      this.$router.push({ path: `/OthersPage` });
+    //todo: 是点作者头像跳转到作者的空间，而不是点评论 在另一个组件已完成
+
+    // todo: url:likebot POST 传botid（键名）,检查后端的返回信息 result:added, 如果是未添加，则是add, 出现弹窗提示
+    //已完成
+    async like() {
+      try {
+        await this.$post(
+            'likebot/',
+            { botid: this.bot.id },
+            {},
+            'likeData',
+            '',
+            ''
+        );
+        if (this.likeData.result === 'add') {
+          alert('点赞失败！');
+        } else {
+          alert('点赞成功！');
+        }
+      } catch (error) {
+        console.error(error);
+      }
     },
-    // todo: url:likebot POST 传botid（键名）, 检查后端的返回信息 result:added, 如果是未添加，则是add, 出现弹窗提示
-    like(){},
     // todo: url:collectbot POST 传botid（键名）, 检查后端的返回信息 result:added, 如果是未添加，则是add, 出现弹窗提示
-    collect(){}
+    // 已完成
+    async collect(){
+      try {
+        await this.$post(
+            'collectbot/',
+            { botid: this.bot.id },
+            {},
+            'collectData',
+            '',
+            ''
+        );
+        if (this.collectData.result === 'add') {
+          alert('收藏失败！');
+        } else {
+          alert('收藏成功！');
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    },
+    async getBotMsg() {
+      try {
+        await this.$get(
+            'get_bot_msg/',
+            { botid: this.bot.id },
+            'botData',
+            '',
+            ''
+        );
+        //这里做一个对数据的检查和处理
+        this.bot = this.botData;
+      } catch (error) {
+        console.error(error);
+      }
+    }
   },
   mounted() {
-  //   todo: 根据跳转传来的id，向后端请求机器人信息 url:get_bot_msg
+    //todo: 根据跳转传来的id，向后端请求机器人信息 url:get_bot_msg 已完成
+    this.bot.id = this.$route.query.bot_id;
+    this.getBotMsg();
+
   }
 };
 </script>
@@ -114,7 +163,7 @@ export default {
 <style scoped>
 /* 引入自定义图标字体库 */
 .iconfont {
-  font-family: "iconfont";
+  font-family: "iconfont",serif;
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
