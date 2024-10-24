@@ -7,9 +7,9 @@
         <button @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer;">
           <i class="iconfont">&#xe605;</i>
         </button>
-        <img :src="author.avatar" alt="Author Avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 12px;" />
+        <img :src="author.avatar" alt="Author Avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 12px; cursor: pointer;" @click="goToAuthorPage(author.id)" />
         <div>
-          <h3 style="margin: 0; font-size: 18px; font-weight: 600;">{{ bot.title }} {{bot.id}}</h3>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 600; cursor: pointer;" @click="goToAuthorPage(author.id)">{{ bot.title }} {{bot.id}}</h3>
           <div style="font-size: 14px; color: #888;">{{ author.name }} 发布于 {{ bot.releaseDate }}</div>
         </div>
       </div>
@@ -68,6 +68,7 @@ export default {
     return {
       // 作者和机器人信息
       author: {
+        id: 1,
         name: "PlayWithAI",
         avatar: "https://via.placeholder.com/50"
       },
@@ -149,7 +150,10 @@ export default {
       } catch (error) {
         console.error(error);
       }
-    }
+    },
+    goToAuthorPage(creatorId) {
+      this.$router.push({ name: 'OthersPage', query: { creator_id: creatorId } });
+    },
   },
   mounted() {
     //todo: 根据跳转传来的id，向后端请求机器人信息 url:get_bot_msg 已完成
