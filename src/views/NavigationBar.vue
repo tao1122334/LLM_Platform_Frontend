@@ -71,10 +71,10 @@ export default {
       <div @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer">
         Bot 商店
       </div>
-      <div @click="getUserTable">
+      <div @click="getUserTable" style="cursor: pointer">
         导出用户入账流水
       </div>
-      <div @click="getBotTable">
+      <div @click="getBotTable" style="cursor: pointer">
         导出Bot评分
       </div>
       <div @click="goToLogin" style="cursor: pointer">

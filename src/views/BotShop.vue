@@ -157,6 +157,7 @@ export default {
                 alt="Bot Image"
                 loading="lazy"
                 style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 12px;cursor: pointer;"
+                @click.stop="goToDetails(bot.id)"
             />
             <!-- 标题和作者信息 -->
             <div style="flex-grow: 1;">
