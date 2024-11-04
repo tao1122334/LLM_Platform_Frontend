@@ -91,7 +91,7 @@ export default {
     };
   },
   methods: {
-    //todo: 是点作者头像跳转到作者的空间，而不是点评论 在另一个组件已完成
+    //todo: 是点作者头像跳转到作者的空间，而不是点评论 在另一个组件 已完成
 
     // todo: url:likebot POST 传botid（键名）,检查后端的返回信息 result:added, 如果是未添加，则是add, 出现弹窗提示
     //已完成

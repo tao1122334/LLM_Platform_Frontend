@@ -134,7 +134,6 @@ export default {
     async sendMessage() {
       if (this.newMessage.trim() !== "") {
         this.addMessageMe(this.newMessage, this.uploadedFiles);
-        this.newMessage = "";
         await this.$nextTick(() => {
           const textarea = this.$refs.input;
           textarea.style.height = 'auto'; // 重置高度
@@ -146,8 +145,16 @@ export default {
         form.append('chat_content', this.newMessage);
         form.append('userfile', this.uploadedFiles);
         await this.$post(this.url, null, form, 'data');
-        this.messages.push({ text: this.data.fields.bot_text+" | "+this.data.chat_method, sender: "assistant" });
+        // 解析 JSON 数据
+        const receive_data = JSON.parse(this.data.chat);
 
+        // 提取 bot_text
+        const botJson = receive_data[0].fields.bot_text;
+        const botText = JSON.parse(botJson).output_text;
+        const Model = receive_data[0].model;
+        // const questions =
+        this.messages.push({ text: botText +" | "+ Model, sender: "assistant" });
+        this.newMessage = "";
       }else {
         alert("消息不能为空");
       }
@@ -281,12 +288,13 @@ export default {
       try {
         await this.$get(
             'messagelist/',
-            null,
+            {},
             'messageData',
             '',
             ''
         );
         //处理发送回来的数据
+        console.log(this.messageData)
         //this.messageData;
       } catch (error) {
         console.error(error);
