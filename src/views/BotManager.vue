@@ -46,7 +46,6 @@
         </button>
       </div>
     </header>
-
     <!-- 主内容区域 -->
     <div v-if="activeTab === 'edit'" class="edit-section">
       <div style="display: flex; height: 100%; overflow: hidden;">
@@ -72,43 +71,17 @@
             </ul>
           </div>
         </div>
-
-        <!-- 右侧：预览与调试 -->
+          <!-- 右侧：预览与调试 -->
         <div style="flex: 1; display: flex; flex-direction: column;">
-          <header
-              style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd;"
-          >
-            <div style="font-size: 18px; font-weight: bold;">豆包 · Function call 模型</div>
-            <div>
-              <button style="background-color: transparent; border: none; cursor: pointer;">隐私设置</button>
-            </div>
-          </header>
-
-          <div style="flex: 1; display: flex; overflow: hidden;">
-            <!-- 中间：功能调试区域 -->
-            <div style="flex: 1; padding: 20px;">
-              <h2 style="font-weight: normal;">预览与调试</h2>
-              <div
-                  style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center;"
-              >
-                <img src="" alt="123" style="width: 64px;" />
-              </div>
-            </div>
-          </div>
-
-          <!-- 底部：输入框 -->
-          <footer style="padding: 15px; border-top: 1px solid #ddd; display: flex; align-items: center;">
-            <input
-                type="text"
-                placeholder="请输入内容..."
-                style="flex: 1; padding: 10px; border: 1px solid #ddd; border-radius: 4px; margin-right: 10px;"
-            />
-            <button
-                style="padding: 10px 20px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;"
+            <header
+                style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd;"
             >
-              发送
-            </button>
-          </footer>
+              <div style="font-size: 18px; font-weight: bold;">豆包 · Function call 模型</div>
+              <div>
+                <button style="background-color: transparent; border: none; cursor: pointer;">隐私设置</button>
+              </div>
+            </header>
+            <Home/>
         </div>
       </div>
     </div>
@@ -120,14 +93,21 @@
         <div class="card">全国排名: <span>-</span></div>
         <div class="card">用户来源: <span>暂无数据</span></div>
       </div>
+      <Community/>
     </div>
-
   </div>
 </template>
 
 <script>
+import Home from "@/views/Home.vue";
+import Community from "@/views/Community.vue";
+
 export default {
   name: 'BotManager',
+  components: {
+    Home,
+    Community,
+  },
   data() {
     return {
       activeTab: 'edit', // 控制当前显示的选项卡
