@@ -44,9 +44,11 @@ export default {
     toggleDropdown() {
       this.dropdownOpen = !this.dropdownOpen;
     },
-    selectFilter(filter) {
+    async selectFilter(filter) {
       this.currentFilter = filter;
       this.dropdownOpen = false;
+      await this.$get('botlist/', {order: filter}, 'data');
+      console.log(this.data);
     },
     recommend() {
       console.log("recommend");
@@ -66,7 +68,7 @@ export default {
     async getBots() {
       // 获取机器人列表
       try {
-        await this.$get('get_bot_msg/3/', {}, 'data');
+        await this.$get('botlist/', {}, 'data');
         console.log(this.data);
       } catch (error) {
         console.error("Error fetching bots:", error);
