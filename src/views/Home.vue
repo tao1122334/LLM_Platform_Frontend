@@ -145,14 +145,17 @@ export default {
         form.append('chat_content', this.newMessage);
         form.append('userfile', this.uploadedFiles);
         await this.$post(this.url, null, form, 'data');
+        console.log(this.data)
         // 解析 JSON 数据
         const receive_data = JSON.parse(this.data.chat);
 
         // 提取 bot_text
         const botJson = receive_data[0].fields.bot_text;
-        const botText = JSON.parse(botJson).output_text;
+        const botText = JSON.parse(botJson).response;
+        const questions = JSON.parse(botJson).heuristic_questions;
         const Model = receive_data[0].model;
-        // const questions =
+        console.log(botText)
+        console.log(questions)
         this.messages.push({ text: botText +" | "+ Model, sender: "assistant" });
         this.newMessage = "";
       }else {
