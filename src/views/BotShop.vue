@@ -4,8 +4,8 @@ export default {
   data() {
     return {
       dropdownOpen: false,
-      currentFilter: "best of the month",
-      filters: ["best of the month", "best of all time", "most visited"],
+      currentFilter: "the latest bots",
+      filters: ["the latest bots","best of the month", "best of all time", "most visited"],
       bots: [
         {
           id: 1,
