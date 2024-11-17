@@ -20,9 +20,12 @@ export default defineConfig({
     port: 8080, // 设置开发服务器的端口
     proxy: {
       '/api': {
-        target: 'http://localhost:8000/',
+        target: 'http://llm.if4.ttyt.cc',
         changeOrigin: true, // 允许代理跨域
         secure: false, // 如果使用的是自签名证书，需要将 secure 设置为 false
+        pathRewrite: {
+        '^/api': '', // 将请求路径中的 `/api` 去掉
+      },
       }
     }
   },
