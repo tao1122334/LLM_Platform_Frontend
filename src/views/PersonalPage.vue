@@ -3,14 +3,15 @@
     <!-- 头部栏 -->
     <div class="header" :style="headerStyles">
       <div class="profile-section" :style="profileSectionStyles">
-        <img class="profile-avatar" :src="userAvatar" alt="User Avatar" :style="profileAvatarStyles" />
+        <img class="profile-avatar" :src="userAvatar" alt="User Avatar" :style="profileAvatarStyles"/>
         <div class="user-info" :style="userInfoStyles">
           <div class="user-basic-info" :style="userBasicInfoStyles">
             <span :style="userNameStyles">{{ userSpaceName }}</span>
             <span v-if="userHandle" :style="userHandleStyles">{{ userHandle }}</span>
           </div>
           <p v-if="userDescription" :style="userDescriptionStyles">{{ userDescription }}</p>
-          <div v-if="followingCount !== null && followerCount !== null && likeCount !== null" class="user-stats" :style="userStatsStyles">
+          <div v-if="followingCount !== null && followerCount !== null && likeCount !== null" class="user-stats"
+               :style="userStatsStyles">
             <span :style="statStyles">关注 {{ followingCount }}</span>
             <span :style="statStyles">粉丝 {{ followerCount }}</span>
             <span :style="statStyles">获赞 {{ likeCount }}</span>
@@ -27,18 +28,22 @@
     <!-- 选项栏和搜索框 -->
     <div class="toolbar" :style="toolbarStyles">
       <div class="options" :style="optionsStyles">
-        <button v-for="(option, index) in options" :key="index" @click="selectOption(option)" :style="optionButtonStyles">
+        <button v-for="(option, index) in options" :key="index" @click="selectOption(option)"
+                :style="optionButtonStyles">
           {{ option.name }}
         </button>
       </div>
-      <div class="search-filter" :style="searchFilterStyles">
-        <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" :style="searchInputStyles" />
-        <button @click="search" :style="searchButtonStyles">🔍搜索</button>
-        <select v-model="selectedFilter" :style="filterSelectStyles">
-          <option v-for="filter in filters" :key="filter.value" :value="filter.value">
-            {{ filter.label }}
-          </option>
-        </select>
+      <div style="display: flex; flex-direction: column">
+        <button @click="isModalVisible=!isModalVisible"  :style="viewButtonStyles" style="margin-bottom: 10px">创建机器人</button>
+        <div class="search-filter" :style="searchFilterStyles">
+          <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" :style="searchInputStyles"/>
+          <button @click="search" :style="searchButtonStyles">🔍搜索</button>
+          <select v-model="selectedFilter" :style="filterSelectStyles">
+            <option v-for="filter in filters" :key="filter.value" :value="filter.value">
+              {{ filter.label }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -46,14 +51,56 @@
     <div class="robot-grid" :style="robotGridStyles">
       <div class="robot-card" v-for="robot in filteredRobots" :key="robot.id" :style="robotCardStyles">
         <div :style="robotHeaderStyles">
-          <img :src="robot.icon || defaultRobotIcon" alt="Robot Icon" :style="robotIconStyles" />
+          <img :src="robot.icon || defaultRobotIcon" alt="Robot Icon" :style="robotIconStyles"/>
           <h3 :style="robotNameStyles">{{ robot.name }}</h3>
         </div>
         <p :style="robotDescriptionStyles">{{ robot.description }}</p>
         <button @click="setRobot(robot)" :style="viewButtonStyles">{{ viewButtonText }}</button>
       </div>
     </div>
+    <!-- Element Plus Dialog -->
+    <el-dialog
+      v-model="isModalVisible"
+      title="创建机器人"
+      :before-close="handleClose"
+      width="400px"
+    >
+      <!-- 表单内容 -->
+      <el-form :model="form" ref="form" label-width="200px">
+        <!-- 用例选择 -->
+        <el-form-item label="您希望它可以用于：" required>
+          <el-select v-model="form.useCase" placeholder="请选择">
+            <el-option label="转录" value="transcription"></el-option>
+            <el-option label="生成图片" value="image-generation"></el-option>
+            <el-option label="识别图片" value="image-recognition"></el-option>
+            <el-option label="炒股" value="stock-trading"></el-option>
+          </el-select>
+        </el-form-item>
+
+        <!-- 机器人名称 -->
+        <el-form-item label="机器人名称：" required>
+          <el-input v-model="form.robotName" placeholder="请输入机器人名称"></el-input>
+        </el-form-item>
+
+        <!-- 机器人描述 -->
+        <el-form-item label="机器人描述：" required>
+          <el-input
+            v-model="form.robotDescription"
+            placeholder="请输入机器人的描述"
+            type="textarea"
+            rows="4"
+          ></el-input>
+        </el-form-item>
+
+        <!-- 底部按钮 -->
+        <div slot="footer" class="dialog-footer">
+          <el-button @click="handleClose()">取 消</el-button>
+          <el-button type="primary" @click="submitForm">确 定</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
   </div>
+
 </template>
 <!--todo: 自定义机器人详情界面，不应该弹出对话，请参考figma或者再向我确认-->
 //this.$router.push({ path: `/BotManager` });这里弹到机器人管理界面,具体功能并未详细设计
@@ -120,20 +167,20 @@ export default {
     options: {
       type: Array,
       default: () => [
-        { name: 'Bots' },
-        { name: '操作' },
-        { name: '工作流' },
-        { name: '图像流' },
-        { name: '知识库' },
-        { name: '卡片' },
+        {name: 'Bots'},
+        {name: '操作'},
+        {name: '工作流'},
+        {name: '图像流'},
+        {name: '知识库'},
+        {name: '卡片'},
       ]
     },
     filters: {
       type: Array,
       default: () => [
-        { label: '全部', value: 'all' },
-        { label: '激活的', value: 'active' },
-        { label: '已禁用的', value: 'disabled' },
+        {label: '全部', value: 'all'},
+        {label: '激活的', value: 'active'},
+        {label: '已禁用的', value: 'disabled'},
       ]
     },
     dashboardStyles: {
@@ -397,12 +444,20 @@ export default {
   },
   data() {
     return {
+      // 控制弹窗的显示与隐藏
+      isModalVisible: false,
+      // 表单数据
+      form: {
+        useCase: 'transcription', // 默认选择的用例
+        robotName: '',
+        robotDescription: '', // 新增的描述字段
+      },
       id: 1,
       searchQuery: '',
       selectedFilter: 'all',
       robots: [
-        { id: 1, name: '123', description: '功能 - Function call模型，使用频率 211次', icon: '' },
-        { id: 2, name: '机器人2', description: '描述2', icon: '' },
+        {id: 1, name: '123', description: '功能 - Function call模型，使用频率 211次', icon: ''},
+        {id: 2, name: '机器人2', description: '描述2', icon: ''},
       ]
     };
   },
@@ -419,6 +474,19 @@ export default {
     },
   },
   methods: {
+    submitForm() {
+      // 你可以在这里处理表单提交的逻辑，例如通过 API 发送请求
+      alert(
+        `您选择了: ${this.form.useCase}，机器人名称: ${this.form.robotName}，描述: ${this.form.robotDescription}`
+      );
+      this.handleClose(); // 提交后关闭弹窗
+    },
+    handleClose() {
+      this.form.robotName = ''; // 清空表单数据
+      this.form.useCase = 'transcription'; // 重置默认值
+      this.form.robotDescription = ''; // 清空描述字段
+      this.isModalVisible = false;
+    },
     createRobot() {
 
     },
@@ -426,7 +494,7 @@ export default {
 
     },
     setRobot(robot) {
-      this.$router.push({ path: `/BotManager` });
+      this.$router.push({path: `/BotManager`});
     },
     search() {
 
