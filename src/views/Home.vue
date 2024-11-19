@@ -5,10 +5,14 @@ import IconDocumentation from "@/components/icons/IconDocumentation.vue";
 import IconEcosystem from "@/components/icons/IconEcosystem.vue";
 import IconTooling from "@/components/icons/IconTooling.vue";
 import FileRenderer from "@/views/FileRenderer.vue";
+import { marked } from 'marked'; // 导入 marked
+import JSON5 from "json5";
+import AvatarComponent from "@/views/AvatarComponent.vue";
 
 export default {
   name: 'Home',
   components: {
+    AvatarComponent,
     IconTooling,
     IconEcosystem,
     IconDocumentation,
@@ -69,7 +73,7 @@ export default {
       ],
       selectedBot: {id: 3, name: 'ChatGPT'},        // 选中的机器人
       showBotList: false,        // 控制机器人列表弹窗的显示
-      messageData: null
+      messageData: null,
     };
   },
   methods: {
@@ -107,18 +111,21 @@ export default {
         text: text,
         sender: "me",
         file: file,
-        photo: "src/assets/login.jpg",
+        photo: "",
         timestamp: new Date().toISOString(),
+        remember: this.isTempChatEnabled,  // 是否记住
       };
       this.messages.push(newMsg);
     },
-    addMessageAssistant(text, file){
+    addMessageAssistant(text, file, questions){
       const newMsg = {
         id: this.messages.length + 1,
         text: text,
         sender: "assistant",
         file: file,
         timestamp: new Date().toISOString(),
+        questions: questions,
+        photo: "",
       };
       this.messages.push(newMsg);
     },
@@ -147,16 +154,16 @@ export default {
         await this.$post(this.url, null, form, 'data');
         console.log(this.data)
         // 解析 JSON 数据
-        const receive_data = JSON.parse(this.data.chat);
+        const receive_data = JSON5.parse(this.data.chat);
 
         // 提取 bot_text
         const botJson = receive_data[0].fields.bot_text;
-        const botText = JSON.parse(botJson).response;
-        const questions = JSON.parse(botJson).heuristic_questions;
+        const botText = JSON5.parse(botJson).response;
+        const questions = JSON5.parse(botJson).heuristic_questions;
         const Model = receive_data[0].model;
         console.log(botText)
         console.log(questions)
-        this.messages.push({ text: botText +" | "+ Model, sender: "assistant" });
+        this.addMessageAssistant(botText, null, questions);
         this.newMessage = "";
       }else {
         alert("消息不能为空");
@@ -225,9 +232,9 @@ export default {
     toggleTempChat() {
       this.isTempChatEnabled = !this.isTempChatEnabled;
       if (this.isTempChatEnabled) {
-        this.messages.push({ text: '临时聊天已经启动', sender: "system" });
+        this.addMessageSystem('临时聊天已经启动');
       }else {
-        this.messages.push({ text: '临时聊天已经关闭', sender: "system" });
+        this.addMessageSystem('临时聊天已经关闭');
       }
     },
     // 菜单项点击事件
@@ -263,11 +270,15 @@ export default {
       });
       this.hideMenu();
     },
-    showTooltip(iconName) {
-      this.hoveredIcon = iconName;
+    handleClick(question) {
+      console.log("Clicked question:", question);
+      this.newMessage = question;
+      //todo:这边可能需要一个prompt的弹窗
+      this.sendMessage();
     },
-    hideTooltip() {
-      this.hoveredIcon = "";
+    handleHover(event, isHover) {
+      const button = event.target;
+      button.style.color = isHover ? "#0056b3" : "#007BFF";
     },
     inputTextArea(){
       const textarea = this.$refs.input;
@@ -291,16 +302,74 @@ export default {
       try {
         await this.$get(
             'messagelist/',
-            {},
+            null,
             'messageData',
             '',
             ''
         );
         //处理发送回来的数据
-        console.log(this.messageData)
-        //this.messageData;
+        console.log(this.messageData);
+        // 遍历后端返回的消息数据
+        this.messageData.messages.forEach(item => {
+          const fields = item.fields || {}; // 确保 fields 存在，避免报错
+          const botText = fields.bot_text || ""; // 获取机器人发送的消息
+          let cleanedText = "";
+          try {
+            // 替换单引号为双引号，并解析为对象
+            const parsed = JSON5.parse(botText);
+
+            // 提取第一个键值对的值
+            const firstKey = Object.keys(parsed)[0]; // 获取第一个键
+            cleanedText = parsed[firstKey] || ""; // 获取第一个键对应的值
+
+            console.log("提取的值:", cleanedText);
+          } catch (error) {
+            console.error("JSON 解析失败:", error);
+            cleanedText = botText; // 如果解析失败，使用原始文本
+          }
+          const chatContent = fields.chat_content || ""; // 获取用户发送的消息
+          const botFile = fields.bot_file_path || null; // 机器人消息的附件文件路径
+          const userFile = fields.user_file_path || null; // 用户消息的附件文件路径
+          const timestamp = fields.timestamp || new Date().toISOString(); // 时间戳
+
+          // 如果用户发送了消息，推入用户消息
+          if (chatContent) {
+            this.messages.push({
+              id: this.messages.length + 1,
+              text: chatContent,
+              sender: "me", // 标识为用户发送
+              file: userFile,
+              timestamp: timestamp,
+            });
+          }
+          // 如果机器人发送了消息，推入机器人消息
+          if (botText) {
+            this.messages.push({
+              id: this.messages.length + 1,
+              text: cleanedText,
+              sender: "assistant", // 标识为机器人发送
+              file: botFile,
+              timestamp: timestamp,
+              questions: fields.heuristic_questions || [], // 启发式问题
+              photo: "", // 机器人头像
+            });
+          }
+
+
+        });
+
       } catch (error) {
         console.error(error);
+      }
+    },
+    // 渲染 Markdown 内容
+    renderMarkdown(text) {
+      try {
+        // 使用 marked 解析 Markdown 文本
+        return marked(text);
+      } catch (error) {
+        console.error('Markdown 渲染失败:', error);
+        return text; // 如果解析失败，返回原始文本
       }
     },
   },
@@ -313,7 +382,7 @@ export default {
   beforeDestroy() {
     //clearInterval(this.messagePolling);
     document.removeEventListener('click', this.handleOutsideClick.bind(this));
-  }
+  },
 };
 </script>
 
@@ -370,27 +439,31 @@ export default {
                 style="background-color: #007bff; color: white; padding: 10px 15px; border-radius: 10px; max-width: 60%; word-wrap: break-word;">
               {{ message.text }}
             </p>
-            <img
+            <AvatarComponent
                 :src="message.photo"
-                alt="用户头像"
-                class="avatar"
-                style="width: 40px; height: 40px; border-radius: 50%;"/>
+                :name="message.sender"
+                :size="40"
+                shape="circle"
+            />
           </div>
 
           <!-- 机器人消息在左侧 -->
           <div
               v-else-if="message.sender === 'assistant'"
               style="display: flex; justify-content: flex-start; width: 100%; align-items: center; gap: 10px;">
-            <img
+            <AvatarComponent
                 :src="message.photo"
-                alt="机器人头像"
-                class="avatar"
-                style="width: 40px; height: 40px; border-radius: 50%;"/>
+                :name="message.sender"
+                :size="40"
+                shape="circle"
+            />
+            <!-- 使用 v-html 渲染 Markdown -->
             <p
+                v-html="renderMarkdown(message.text)"
                 style="background-color: #f1f1f1; color: black; padding: 10px 15px; border-radius: 10px; max-width: 60%; word-wrap: break-word;">
-              {{ message.text }}
             </p>
           </div>
+
 
           <!-- 系统提示消息居中显示 -->
           <template v-else-if="message.sender === 'system'">
@@ -400,6 +473,20 @@ export default {
               <div style="flex: 1; height: 1px; background-color: #ddd;"></div>
             </div>
           </template>
+
+          <div v-if="message.questions && message.questions.length > 0" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin: 20px 0;">
+            <button
+                v-for="(question, index) in message.questions"
+                :key="index"
+                @click="handleClick(question)"
+                style="background: none; border: none; color: #007BFF; font-size: 16px; text-align: left; cursor: pointer; text-decoration: underline; transition: color 0.3s;"
+                @mouseover="handleHover($event, true)"
+                @mouseleave="handleHover($event, false)"
+            >
+              {{ question }}
+            </button>
+          </div>
+
 
 
 

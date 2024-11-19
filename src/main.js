@@ -96,8 +96,8 @@ app.config.globalProperties.$get = async function (v, par, data, text = '', type
      * @param {boolean} [send=true] - 是否发送请求并处理错误消息（默认为 true）。
      */
     var res = 'api/' + v;
-    const keys = Object.keys(par);
-    if (Object.length > 0) {
+    if (par && Object.length > 0) {
+        const keys = Object.keys(par);
         res = res + '?' + keys[0] + '=' + par[keys[0]]
         // 从第二个元素开始遍历
         for (let i = 1; i < keys.length; i++) {
@@ -138,8 +138,8 @@ app.config.globalProperties.$fetch = async function (v, par, data, text, type) {
      * @param {string} type - 提示信息的类型（可选）。
      */
     var res = 'api/' + v;
-    const keys = Object.keys(par);
-    if (Object.length > 0) {
+    if (par && Object.length > 0) {
+        const keys = Object.keys(par);
         res = res + '?' + keys[0] + '=' + par[keys[0]]
         // 从第二个元素开始遍历
         for (let i = 1; i < keys.length; i++) {

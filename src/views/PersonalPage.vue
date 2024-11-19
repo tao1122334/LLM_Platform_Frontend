@@ -496,18 +496,6 @@ export default {
     setRobot(robot) {
       this.$router.push({path: `/BotManager`});
     },
-    search() {
-
-    },
-    followUser() {
-
-    },
-    shareProfile() {
-
-    },
-    moreOptions() {
-
-    }
   },
   mounted() {
     this.id = this.$route.query.creator_id;

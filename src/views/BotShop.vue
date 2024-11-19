@@ -1,43 +1,18 @@
 <script>
+import AvatarComponent from "@/views/AvatarComponent.vue";
+
 export default {
   name: "BotShop",
+  components: {AvatarComponent},
   data() {
     return {
       dropdownOpen: false,
       currentFilter: "the latest bots",
-      filters: ["the latest bots","best of the month", "best of all time", "most visited"],
-      bots: [
-        {
-          id: 1,
-          title: "个人说明书",
-          description: "创建属于你的个人说明书，并展示给他人使用。",
-          views: 207,
-          likes: 345,
-          comments: 14,
-          image: "https://via.placeholder.com/50", // 机器人头像
-          author: {
-            id: 1,
-            name: "PlayWithAI",
-            avatar: "https://via.placeholder.com/24", // 作者头像
-          }
-        },
-        {
-          id: 2,
-          title: "合成新元素",
-          description: "通过不同元素合成，探索新的组合和用途。",
-          views: 620,
-          likes: 543,
-          comments: 22,
-          image: "https://via.placeholder.com/50",
-          author: {
-            id: 2,
-            name: "SpaceKid",
-            avatar: "https://via.placeholder.com/24",
-          }
-        }
-      ],
+      filters: ["the latest bots", "best of the month", "best of all time", "most visited"],
+      bots: [],
       hoverEffect: -1,
       data: null,
+      search: ''
     };
   },
   methods: {
@@ -45,10 +20,18 @@ export default {
       this.dropdownOpen = !this.dropdownOpen;
     },
     async selectFilter(filter) {
+      await this.$get('botlist/', {order: filter}, 'data');
+      console.log("filter", filter);
+      console.log(this.data);
+      this.processBotsData(this.data.bots);
       this.currentFilter = filter;
       this.dropdownOpen = false;
-      await this.$get('botlist/', {order: filter}, 'data');
+    },
+    async searchBot() {
+      await this.$get('botlist/', {search: this.search}, 'data');
+      console.log("search", this.search);
       console.log(this.data);
+      this.processBotsData(this.data.bots);
     },
     recommend() {
       console.log("recommend");
@@ -69,10 +52,34 @@ export default {
       // 获取机器人列表
       try {
         await this.$get('botlist/', {}, 'data');
+        console.log("getBots");
         console.log(this.data);
+        this.processBotsData(this.data.bots);
       } catch (error) {
         console.error("Error fetching bots:", error);
       }
+    },
+    processBotsData(rawBots) {
+      // 遍历原始 bots 数据，并填充到本地 bots 数组
+      this.bots = [];
+      rawBots.forEach((item) => {
+        this.bots.push({
+          id: item.id,
+          title: item.name || "未知标题", // 如果 name 为空，设置默认值
+          description: item.description || "暂无描述", // 如果 description 为空，设置默认值
+          views: item.visit_count || 0, // 替换为 visit_count
+          likes: item.total_likes || 0, // 替换为 total_likes
+          comments: item.collection_count || 0, // 替换为 collection_count
+          image: item.bot_avatar || "", // 替换为 bot_avatar
+          author: {
+            id: item.creator?.id || 0, // 如果 creator 不存在，设置默认值
+            name: item.creator?.username || "未知作者", // 如果 username 为空，设置默认值
+            avatar: item.creator?.avatar || "", // 如果 avatar 不存在，设置默认值
+            balance: item.creator?.balance || 0, // 如果 balance 不存在，设置默认值
+            email: item.creator?.email || "", // 如果 email 不存在，设置默认值
+          },
+        });
+      });
     },
   },
   mounted() {
@@ -93,10 +100,15 @@ export default {
         <h2 style="font-weight: 700; color: #333; font-size: 24px; margin-left: 20px;">Bot 商店</h2>
         <div style="display: flex; align-items: center; gap: 10px;">
           <input
+              v-model="search"
               type="text"
               placeholder="搜索"
               style="width: 400px; padding: 10px; border: 1px solid #ddd; border-radius: 4px; outline: none;"
           />
+          <button style="border: none; background: #007bff; color: #fff; padding: 10px 20px; border-radius: 4px; cursor: pointer; transition: background 0.3s;"
+                  @click="searchBot">
+          搜索
+          </button>
         </div>
         <button style="border: none; background: #007bff; color: #fff; padding: 10px 20px; border-radius: 4px; cursor: pointer; transition: background 0.3s;">
           上架 Bot
@@ -154,12 +166,15 @@ export default {
         >
           <div style="display: flex; align-items: center; margin-bottom: 12px;">
             <!-- 机器人图片（头像） -->
-            <img
-                :src="bot.image"
-                alt="Bot Image"
-                loading="lazy"
-                style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; margin-right: 12px;cursor: pointer;"
-                @click.stop="goToDetails(bot.id)"
+            <AvatarComponent
+                :size="50"
+                :name="bot.title"
+                :image="bot.image"
+                shape="square"
+                bgColor="#FFD700"
+                textColor="#333"
+                initialSize="50"
+                @click="goToDetails(bot.id)"
             />
             <!-- 标题和作者信息 -->
             <div style="flex-grow: 1;">
@@ -172,11 +187,15 @@ export default {
               </h3>
               <!-- 作者信息：头像 + 名称 -->
               <div style="display: flex; align-items: center; margin-top: 4px;">
-                <img
-                    :src="bot.author.avatar"
-                    alt="Author Image"
-                    style="width: 20px; height: 20px; border-radius: 50%; cursor: pointer; margin-right: 6px;"
-                    @click.stop="goToAuthorPage(bot.author.id)"
+                <AvatarComponent
+                    :size="20"
+                    :name="bot.author.name"
+                    :image="bot.author.avatar"
+                    shape="circle"
+                    bgColor="#FFD700"
+                    textColor="#333"
+                    initialSize="50"
+                    @click="goToAuthorPage(bot.author.id)"
                 />
                 <span
                     style="font-size: 14px; color: #555; cursor: pointer;"
