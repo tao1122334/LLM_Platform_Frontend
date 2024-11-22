@@ -1,4 +1,6 @@
 # llm-platform-frontend
+## 账户密码
+![img.png](img.png)
 ## 在vite.config.js中，设置代码如下
 ```javascript
 resolve: {

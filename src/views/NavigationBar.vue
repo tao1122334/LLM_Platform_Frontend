@@ -1,4 +1,5 @@
 <script>
+import { ElMessageBox, ElMessage } from "element-plus";
 export default {
   data() {
     return {
@@ -8,6 +9,30 @@ export default {
     };
   },
   methods: {
+    // 处理充值
+    handleRecharge() {
+      // 使用 ElMessageBox.prompt 显示输入弹窗
+      ElMessageBox.prompt("请输入充值金额", "充值", {
+        confirmButtonText: "确认",
+        cancelButtonText: "取消",
+        inputPattern: /^[1-9]\d*$/, // 限制只能输入正整数
+        inputErrorMessage: "请输入有效的金额",
+      })
+        .then(({ value }) => {
+          // 确认后处理逻辑
+          ElMessage({
+            type: "success",
+            message: `充值成功！金额：${value} 元`,
+          });
+        })
+        .catch(() => {
+          // 用户取消时的逻辑
+          ElMessage({
+            type: "info",
+            message: "充值已取消",
+          });
+        });
+    },
     // 跳转到登录页面
     goToLogin() {
       this.$router.push({ path: "/login" });
@@ -76,6 +101,9 @@ export default {
       </div>
       <div @click="getBotTable" style="cursor: pointer">
         导出Bot评分
+      </div>
+      <div @click="handleRecharge" style="cursor: pointer">
+        充值
       </div>
       <div @click="goToLogin" style="cursor: pointer">
       登录
