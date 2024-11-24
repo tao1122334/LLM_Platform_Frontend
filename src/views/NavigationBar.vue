@@ -5,7 +5,8 @@ export default {
     return {
       userData: null, // 用于存储从 login 组件返回的用户数据
       botTable: null,
-      userTable: null
+      userTable: null,
+      data: null
     };
   },
   methods: {
@@ -18,21 +19,47 @@ export default {
         inputPattern: /^[1-9]\d*$/, // 限制只能输入正整数
         inputErrorMessage: "请输入有效的金额",
       })
-        .then(({ value }) => {
-          // 确认后处理逻辑
+        .then(async ({ value }) => {
+      try {
+        // 构造请求体
+        const formData = new FormData();
+        formData.append("amount", value); // 添加充值金额
+
+        // 发送 POST 请求
+        const response = await this.$post("addbalance/", null,formData,'data');
+        console.log(this.data)
+        // // 根据后端返回的内容处理逻辑
+        if (this.data.success) {
+          // 支付成功后的处理
+          window.location.href = this.data.link; // 跳转到支付链接
           ElMessage({
             type: "success",
-            message: `充值成功！金额：${value} 元`,
+            message: `充值链接已生成，请完成支付！金额：${value} 元`,
           });
-        })
-        .catch(() => {
-          // 用户取消时的逻辑
+        } else {
+          // 支付失败的提示
           ElMessage({
-            type: "info",
-            message: "充值已取消",
+            type: "error",
+            message: response.data.message || "充值失败，请稍后再试",
           });
+        }
+      } catch (error) {
+        console.error(error);
+        ElMessage({
+          type: "error",
+          message: "充值失败，服务器异常",
         });
-    },
+      }
+    })
+    .catch(() => {
+      // 用户取消时的逻辑
+      ElMessage({
+        type: "info",
+        message: "充值已取消",
+      });
+    });
+},
+
     // 跳转到登录页面
     goToLogin() {
       this.$router.push({ path: "/login" });
