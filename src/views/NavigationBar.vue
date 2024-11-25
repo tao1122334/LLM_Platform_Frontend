@@ -1,65 +1,34 @@
 <script>
-import { ElMessageBox, ElMessage } from "element-plus";
+
+
 export default {
   data() {
     return {
       userData: null, // 用于存储从 login 组件返回的用户数据
       botTable: null,
       userTable: null,
-      data: null
+      isVisible: false, // 控制列表的显示和隐藏
+      isTable: false,
     };
   },
+   mounted() {
+    window.addEventListener('mousemove', this.handleMouseMove);
+  },
+  beforeDestroy() {
+    window.removeEventListener('mousemove', this.handleMouseMove);
+  },
+   computed: {
+    displayStyle() {
+      console.log(this.isVisible);
+      return this.isVisible ? 0.5 : 0;
+    },
+    transition_style() {
+      return {
+        transition: 'display 1s ease',
+      };
+    }
+  },
   methods: {
-    // 处理充值
-    handleRecharge() {
-      // 使用 ElMessageBox.prompt 显示输入弹窗
-      ElMessageBox.prompt("请输入充值金额", "充值", {
-        confirmButtonText: "确认",
-        cancelButtonText: "取消",
-        inputPattern: /^[1-9]\d*$/, // 限制只能输入正整数
-        inputErrorMessage: "请输入有效的金额",
-      })
-        .then(async ({ value }) => {
-      try {
-        // 构造请求体
-        const formData = new FormData();
-        formData.append("amount", value); // 添加充值金额
-
-        // 发送 POST 请求
-        const response = await this.$post("addbalance/", null,formData,'data');
-        console.log(this.data)
-        // // 根据后端返回的内容处理逻辑
-        if (this.data.success) {
-          // 支付成功后的处理
-          window.location.href = this.data.link; // 跳转到支付链接
-          ElMessage({
-            type: "success",
-            message: `充值链接已生成，请完成支付！金额：${value} 元`,
-          });
-        } else {
-          // 支付失败的提示
-          ElMessage({
-            type: "error",
-            message: response.data.message || "充值失败，请稍后再试",
-          });
-        }
-      } catch (error) {
-        console.error(error);
-        ElMessage({
-          type: "error",
-          message: "充值失败，服务器异常",
-        });
-      }
-    })
-    .catch(() => {
-      // 用户取消时的逻辑
-      ElMessage({
-        type: "info",
-        message: "充值已取消",
-      });
-    });
-},
-
     // 跳转到登录页面
     goToLogin() {
       this.$router.push({ path: "/login" });
@@ -101,38 +70,67 @@ export default {
         console.error('文件下载失败:', error);
       }
     },
+    toggleVisibility() {
+      this.isVisible = !this.isVisible;
+      this.isTable =!this.isTable;
+      console.log("isVisible",this.isVisible);
+      console.log("isTable",this.isTable);
+    },
 
+     handleMouseMove(event) {
+      const x = event.clientX;
+      if(!this.isTable){
+        if (x < 100) { // 当鼠标靠近屏幕左边时
+        this.isVisible = true;
+        console.log('隐藏边栏');
+         console.log("isVisible",this.isVisible);
+      console.log("isTable",this.isTable);
+      } else {
+        this.isVisible = false;
+        console.log('显示边栏');
+         console.log("isVisible",this.isVisible);
+      console.log("isTable",this.isTable);
+      }
+
+      }
+      else{
+        this.isVisible=true
+      }
+    },
   }
 }
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; width: 15vw; height: 95vh">
+  <div style="display: flex; flex-direction: column; width: 15vw; height: 95vh" class="list" >
 
-    <div style="font-size: 1.5em; margin-bottom: 1em">
+    <div style="font-size: 1.5em ; margin-bottom: 1em" >
       LLM Platform
-    </div>
+      <button id="toggleButton" class="button-flat" @click="toggleVisibility" v-if="isVisible">
+  {{ isTable ? '隐藏边栏' : '显示边栏' }}
+    </button>
 
-    <div style="display: flex; flex-direction: column; gap: 1em">
-      <div @click="this.$router.push({path: '/'});" style="cursor: pointer">
+    </div >
+
+
+     <div :style="{ display: displayStyle, transition: transition_style, opacity: isVisible ? 1 : 0, 'flex-direction': 'column', gap: '1em'}" class="list" >
+
+      <div @click="this.$router.push({path: '/'});" style="cursor: pointer;margin-top: 40px" class="button-flat" v-if="isVisible">
         主页
       </div>
-      <div @click="this.$router.push({path: '/PersonalPage'});" style="cursor: pointer">
+      <div @click="this.$router.push({path: '/PersonalPage'});" style="cursor: pointer" class="button-flat" v-if="isVisible">
         个人空间
       </div>
-      <div @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer">
+      <div @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer" class="button-flat" v-if="isVisible">
         Bot 商店
       </div>
-      <div @click="getUserTable" style="cursor: pointer">
+      <div @click="getUserTable" style="cursor: pointer" class="button-flat"  v-if="isVisible">
         导出用户入账流水
       </div>
-      <div @click="getBotTable" style="cursor: pointer">
+      <div @click="getBotTable" style="cursor: pointer" class="button-flat" v-if="isVisible">
         导出Bot评分
       </div>
-      <div @click="handleRecharge" style="cursor: pointer">
-        充值
-      </div>
-      <div @click="goToLogin" style="cursor: pointer">
+      <div @click="goToLogin" style="cursor: pointer" class="button-flat" v-if="isVisible">
       登录
       </div>
     </div>
@@ -154,4 +152,44 @@ export default {
 
 <style scoped>
 
+.button-flat {
+  padding: 16px 8px;
+  font-size: 18px;
+  background: rgba(85, 85, 85, 0.18);
+  color: #0b0909;
+  border-radius: 10px;
+  cursor: pointer;
+  border: slategray;
+  transition: all 0.5s ease;
+  opacity: 1;
+  text-align: center;
+  width: 90%;
+  margin-top: 15px;
+}
+.button-flat:hover {
+  background-color: #404145; /* 鼠标悬停时的背景颜色 */
+}
+
+
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 2em; /* 这将在 flex 子项之间创建间隔 */
+  opacity: 0.8;
+  transition: opacity 0.5s ease; /* 平滑过渡效果 */
+
+}
+
+.menu-bar {
+  position: fixed;
+  left: -50%; /* 初始状态在屏幕外 */
+  top: 50%;
+  transform: translateY(-50%);
+  transition: left 0.3s ease-in-out;
+  background-color: #333;
+  color: white;
+  padding: 10px;
+  z-index: 1000;
+}
 </style>

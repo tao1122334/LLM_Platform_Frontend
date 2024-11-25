@@ -106,8 +106,13 @@ export default {
     };
   },
   methods: {
-    refreshPage() {
-      alert('页面已刷新');
+    async refreshPage() {
+      try {
+        await this.$get('posts', {}, 'comments', '帖子刷新成功', 'success');
+        this.postCount = this.comments.length;
+      } catch (error) {
+        console.error('刷新帖子失败:', error);
+      }
     },
     openPostModal() {
       this.isPostModalOpen = true; // 打开发帖弹窗
@@ -116,19 +121,14 @@ export default {
     closePostModal() {
       this.isPostModalOpen = false; // 关闭发帖弹窗
     },
-    submitPost() {
+    async submitPost() {
       if (this.newPost.title && this.newPost.content) {
-        // 将新帖添加到评论数组
-        this.comments.push({
-          username: '新用户', // 默认用户名，可根据实际需求更改
-          content: this.newPost.content,
-          likes: 0,
-          replies: 0,
-          avatar: 'https://via.placeholder.com/40'
-        });
-        this.postCount++; // 更新帖子数量
-        this.closePostModal(); // 关闭弹窗
-        alert('发帖成功！帖子已更新。');
+        try {
+          await this.$post('posts', {}, this.newPost, '发帖成功', 'success');
+          await this.refreshPage(); // 重新加载帖子
+        } catch (error) {
+          console.error('发帖失败:', error);
+        }
       } else {
         alert('请输入标题和内容');
       }
