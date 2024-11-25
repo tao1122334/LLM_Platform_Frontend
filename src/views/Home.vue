@@ -154,7 +154,7 @@ export default {
         await this.$post(this.url, null, form, 'data');
         console.log(this.data)
         // 解析 JSON 数据
-        const receive_data = this.data.chat;
+        const receive_data = JSON5.parse(this.data.chat);
 
         // 提取 bot_text
         const botJson = receive_data[0].fields.bot_text;
@@ -243,7 +243,7 @@ export default {
       // 清空消息列表
       this.messages = [];
       this.messages.push({ text: '之前的聊天记录已清空，以下是新消息', sender: "system" });
-      this.$delete('del_messagelist/', {}, 'data');
+      this.$delete('del_messagelist/', null, 'data');
       this.hideMenu();
     },
     addToDesktop() {
