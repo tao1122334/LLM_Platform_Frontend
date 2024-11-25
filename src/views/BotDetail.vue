@@ -145,6 +145,7 @@ export default {
             '',
             ''
         );
+        console.log(this.botData)
         //这里做一个对数据的检查和处理
         this.bot = this.botData;
       } catch (error) {

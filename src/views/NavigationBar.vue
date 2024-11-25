@@ -1,5 +1,6 @@
 <script>
 import { ElMessageBox, ElMessage } from "element-plus";
+import axios from "axios";
 export default {
   data() {
     return {
@@ -69,8 +70,34 @@ export default {
     // 发送请求获取机器人表，并让用户下载返回的文件
     async getBotTable() {
       try {
-        const response = await this.$get('admin_bot/', null, 'botTable');
-        this.downloadFile(response, 'bot_table.csv'); // 假设文件格式为 CSV，文件名为 bot_table.csv
+        axios.get('api/admin_bot/', {
+        responseType: 'blob', // 关键：指定响应类型为 blob
+      })
+      .then((response) => {
+        // 创建一个 Blob 对象
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+
+        // 创建一个下载链接
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        // 设置下载文件名
+        link.setAttribute('download', 'bots_dashboard.xlsx');
+
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+
+        // 清理链接
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+})
+.catch((error) => {
+  console.error('Error downloading the file:', error);
+});
       } catch (error) {
         console.error('获取机器人表失败:', error);
       }
@@ -79,24 +106,55 @@ export default {
     // 发送请求获取用户表，并让用户下载返回的文件
     async getUserTable() {
       try {
-        const response = await this.$get('home/admin_user/', null, 'userTable');
-        this.downloadFile(response, 'user_table.csv'); // 假设文件格式为 CSV，文件名为 user_table.csv
+        // 发起 GET 请求，确保设置 responseType 为 blob
+        const response = await axios.get('api/admin_user/', {
+          responseType: 'blob', // 必须设置为 blob 以获取二进制文件
+        });
+
+        // 创建 Blob 对象
+        const blob = new Blob([response.data], {
+          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+
+        // 创建下载链接
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+
+        // 设置下载文件名
+        link.setAttribute('download', 'users_dashboard.xlsx');
+
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+
+        // 清理链接
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+
+        console.log('File downloaded successfully!');
       } catch (error) {
-        console.error('获取用户表失败:', error);
+        console.error('Error downloading the file:', error);
       }
     },
 
     downloadFile(data, filename) {
       try {
-        const blob = new Blob([data], {type: 'application/octet-stream'});
+        // 处理文件下载
+        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url); // 释放 URL 对象
+        const link = document.createElement('a');
+        link.href = url;
+
+        // 设置文件名
+        link.setAttribute('download', filename);
+
+        // 触发下载
+        document.body.appendChild(link);
+        link.click();
+
+        // 清理 DOM
+        document.body.removeChild(link);
       } catch (error) {
         console.error('文件下载失败:', error);
       }

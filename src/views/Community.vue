@@ -59,8 +59,8 @@
     <div v-if="isPostModalOpen"
          style="position: fixed; top: 20%; left: 50%; transform: translateX(-50%); width: 400px; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);">
       <h2>创建新帖</h2>
-      <input v-model="newPost.title" placeholder="请输入标题"
-             style="width: 100%; padding: 8px; margin-bottom: 10px;"/>
+<!--      <input v-model="newPost.title" placeholder="请输入标题"-->
+<!--             style="width: 100%; padding: 8px; margin-bottom: 10px;"/>-->
       <textarea v-model="newPost.content" placeholder="请输入内容" rows="5"
                 style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea>
       <div style="display: flex; justify-content: flex-end;">
@@ -82,6 +82,7 @@ export default {
   data() {
     return {
       postCount: 2, // 初始帖子数量
+      data:null,
       comments: [
         {
           username: 'tlz9703',
@@ -116,8 +117,13 @@ export default {
     closePostModal() {
       this.isPostModalOpen = false; // 关闭发帖弹窗
     },
-    submitPost() {
-      if (this.newPost.title && this.newPost.content) {
+    async submitPost() {
+      if ( this.newPost.content) {
+        const form = new FormData();
+        form.append('comment', this.newPost.content);
+        form.append('id',this.$route.query.bot_id)
+        await this.$post('comment4bot/', null, form, 'data');
+        console.log(this.data)
         // 将新帖添加到评论数组
         this.comments.push({
           username: '新用户', // 默认用户名，可根据实际需求更改
@@ -130,7 +136,7 @@ export default {
         this.closePostModal(); // 关闭弹窗
         alert('发帖成功！帖子已更新。');
       } else {
-        alert('请输入标题和内容');
+        alert('请输入内容');
       }
     },
     likeComment(index) {
@@ -139,6 +145,10 @@ export default {
     goToUserSpace(username) {
       this.$router.push({ path: '/OthersPage' }); // 模拟跳转到作者的空间
     }
+  },
+  async mounted() {
+    await this.$get('comments4bot', {id: this.$route.query.bot_id}, 'data');
+    console.log(this.data)
   }
 };
 </script>

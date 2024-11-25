@@ -118,7 +118,6 @@ app.config.globalProperties.$get = async function (v, par, data, text = '', type
                 }
                 this[data] = null;
             }
-
         })
         .catch(error => {
             this.$showMessage(error, 'error');
