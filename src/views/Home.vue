@@ -307,6 +307,7 @@ export default {
             '',
             ''
         );
+
         //处理发送回来的数据
         console.log(this.messageData);
         // 遍历后端返回的消息数据
