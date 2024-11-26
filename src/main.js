@@ -14,6 +14,7 @@ import Hw1 from "@/views/hw1.vue";
 import BotDetail from "@/views/BotDetail.vue";
 import OthersPage from "@/views/OthersPage.vue";
 import BotManager from "@/views/BotManager.vue";
+import PersonalComment  from "@/views/PersonalComment.vue";
 
 // import VueLazyload from "vue-lazyload";
 const routes = [
@@ -56,6 +57,16 @@ const routes = [
         path: '/BotManager',
         name: 'BotManager',
         component: BotManager
+    },
+    {
+        path: '/PersonalPage',
+        name: 'PersonalPage',
+        component: PersonalPage
+    },
+    {
+        path: '/PersonalComment',
+        name: 'PersonalComment',
+        component: PersonalComment
     }
 ];
 
@@ -118,6 +129,7 @@ app.config.globalProperties.$get = async function (v, par, data, text = '', type
                 }
                 this[data] = null;
             }
+
         })
         .catch(error => {
             this.$showMessage(error, 'error');

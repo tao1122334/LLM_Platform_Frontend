@@ -168,6 +168,8 @@ export default {
       type: Array,
       default: () => [
         {name: 'Bots'},
+        {name: '作品'},
+        {name: '评价'},
         {name: '操作'},
         {name: '工作流'},
         {name: '图像流'},
@@ -490,9 +492,47 @@ export default {
     createRobot() {
 
     },
-    selectOption(option) {
-
-    },
+      // 处理按钮点击的方法
+   selectOption(option) {
+    if (option.name === 'Bots') {
+      // 处理Bots按钮的逻辑
+      console.log('Bots按钮被点击');
+      this.$router.push({path: '/BotShop'});
+      // 例如：导航到Bots页面或显示Bots相关信息
+    } else if (option.name === '作品') {
+      // 处理作品按钮的逻辑
+      console.log('作品按钮被点击');
+    }
+    else if (option.name === '评价') {
+      // 处理评价按钮的逻辑
+      console.log('评价按钮被点击');
+       this.$router.push({path: '/PersonalComment'});
+    }
+    else if (option.name === '操作') {
+      // 处理操作按钮的逻辑
+      console.log('操作按钮被点击');
+      // 例如：显示操作指导或执行某个操作
+    } else if (option.name === '工作流') {
+      // 处理工作流按钮的逻辑
+      console.log('工作流按钮被点击');
+      // 例如：显示工作流管理界面
+    } else if (option.name === '图像流') {
+      // 处理图像流按钮的逻辑
+      console.log('图像流按钮被点击');
+      // 例如：显示图像流分析工具
+    } else if (option.name === '知识库') {
+      // 处理知识库按钮的逻辑
+      console.log('知识库按钮被点击');
+      // 例如：导航到知识库页面或显示知识库内容
+    } else if (option.name === '卡片') {
+      // 处理卡片按钮的逻辑
+      console.log('卡片按钮被点击');
+      // 例如：显示卡片信息或执行与卡片相关的操作
+    } else {
+      // 如果没有匹配的选项，可以在这里处理默认逻辑
+      console.log('未知按钮被点击');
+    }
+  },
     setRobot(robot) {
       this.$router.push({path: `/BotManager`});
     },
