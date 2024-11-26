@@ -182,10 +182,10 @@ export default {
         Bot 商店
       </div>
       <div @click="getUserTable" style="cursor: pointer">
-        导出用户入账流水
+        导出用户
       </div>
       <div @click="getBotTable" style="cursor: pointer">
-        导出Bot评分
+        导出Bot
       </div>
       <div @click="handleRecharge" style="cursor: pointer">
         充值

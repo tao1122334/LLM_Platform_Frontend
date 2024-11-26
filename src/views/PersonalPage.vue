@@ -173,6 +173,7 @@ export default {
         {name: '图像流'},
         {name: '知识库'},
         {name: '卡片'},
+        {name:'评论'}
       ]
     },
     filters: {
