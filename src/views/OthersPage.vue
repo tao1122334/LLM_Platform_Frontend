@@ -57,7 +57,8 @@ export default {
     },
     async getUserMsg(id) {
       try {
-        await this.$get('get_user_msg/', {id}, null, 'userData');
+        await this.$get('get_user_msg', {id}, 'userData',);
+        console.log(this.userData)
         //这里需要对传回来的个人信息结构进行分析,处理this.userData
       } catch (error) {
         console.error('Error fetching user data: ', error);

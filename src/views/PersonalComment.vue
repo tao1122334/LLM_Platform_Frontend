@@ -1,55 +1,94 @@
-<script setup>
-import { ref } from 'vue';
+<script>
+export default {
+  data() {
+    return {
+      // 个人说明书信息
+      botInfo: {
+        id: 1,
+        title: "个人评论区",
+        favorites: 14,
+        likes: 207,
+        description: "这个人什么也没有留下",
+      },
 
-// 个人说明书信息
-const botInfo = ref({
-  id: 1,
-  title: "个人评论区",
-  favorites: 14,
-  likes: 207,
-  description: "这个人什么也没有留下",
-});
+      // 作者信息
+      authorInfo: {
+        id: 1,
+        name: "PlayWithAI",
+        avatar: "https://via.placeholder.com/50"
+      },
 
-// 作者信息
-const authorInfo = ref({
-  id: 1,
-  name: "PlayWithAI",
-  avatar: "https://via.placeholder.com/50"
-});
+      // 评论数据
+      comments: [
+        {id: 1, content: '这是一条评论', author: '用户A'},
+        {id: 2, content: '这是另一条评论', author: '用户B'}
+      ],
 
-// 评论数据
-const comments = ref([
-  { id: 1, content: '这是一条评论', author: '用户A' },
-  { id: 2, content: '这是另一条评论', author: '用户B' }
-]);
+      // 评论表单数据
+      newComment: '',
 
-// 评论表单数据
-const newComment = ref('');
+      // 点赞和收藏状态
+      likeData: false,
+      collectData: false,
+    };
+  },
 
-// 点赞和收藏状态
-const likeData = ref(false);
-const collectData = ref(false);
+  methods: {
+    // 提交评论
+    async submitComment() {
+      if (this.newComment.trim() === '') return;
+      const form = new FormData();
+      form.append('comment', this.newComment);
+      form.append('id', this.$route.query.creator_id)
+      await this.$post('comment4user/', null, form, 'data');
+      console.log(this.data)
+      this.comments.push({
+        id: this.comments.length + 1,
+        content: this.newComment,
+        author: '用户C' // 这里可以替换为实际的用户名称
+      });
+      this.newComment = ''; // 清空输入框
+    },
 
-// 提交评论的函数
-function submitComment() {
-  if (newComment.value.trim() === '') return;
-  comments.value.push({
-    id: comments.value.length + 1,
-    content: newComment.value,
-    author: '用户C' // 这里可以替换为实际的用户名称
-  });
-  newComment.value = ''; // 清空输入框
-}
+    // 点赞功能
+    toggleLike() {
+      this.likeData = !this.likeData;
+    },
 
-// 点赞功能
-function toggleLike() {
-  likeData.value = !likeData.value;
-}
+    // 收藏功能
+    toggleCollect() {
+      this.collectData = !this.collectData;
+    },
+    async fetchComments(creator_id) {
+      try {
+        await this.$get('comments4user', {id: creator_id}, 'data');
+        console.log('评论数据:', this.data);
+        // 在这里你可以根据获取到的评论数据更新 this.comments
+      } catch (error) {
+        console.error('获取评论失败:', error);
+      }
+    },
+        async getUserMsg(id) {
+      try {
+        await this.$get('get_user_msg', {id}, 'userData',);
+        console.log(this.userData)
+        //这里需要对传回来的个人信息结构进行分析,处理this.userData
+      } catch (error) {
+        console.error('Error fetching user data: ', error);
+      }
+    },
+  },
 
-// 收藏功能
-function toggleCollect() {
-  collectData.value = !collectData.value;
-}
+  mounted() {
+    const route = this.$route; // 获取当前路由对象
+    console.log('当前路由参数：', route.query);
+
+    const creator_id = route.query.creator_id; // 获取 query 参数
+    this.fetchComments(creator_id);
+    this.getUserMsg(creator_id)
+  },
+
+};
 </script>
 
 <template>
@@ -70,24 +109,25 @@ function toggleCollect() {
 
     <!-- 评论列表 -->
     <div class="comments_ares">
-    <div class="comments">
-      <h3>评论列表</h3>
-      <div v-for="comment in comments" :key="comment.id" class="comment">
-        <strong>{{ comment.author }}:</strong>
-        <p>{{ comment.content }}</p>
+      <div class="comments">
+        <h3>评论列表</h3>
+        <div v-for="comment in comments" :key="comment.id" class="comment">
+          <strong>{{ comment.author }}:</strong>
+          <p>{{ comment.content }}</p>
+        </div>
       </div>
-    </div> </div>
+    </div>
 
 
     <!-- 评论表单 -->
     <div class="comment-form">
       <h3>发表评论</h3>
       <textarea v-model="newComment" placeholder="写下你的评论..."></textarea>
-     <div>
-  <button @click="submitComment">提交评论</button>
-  <span style="display: inline-block; width: 400px;"></span>
-  <button  @click="this.$router.push({path: '/PersonalPage'});">返回</button>
-</div>
+      <div>
+        <button @click="submitComment">提交评论</button>
+        <span style="display: inline-block; width: 400px;"></span>
+        <button @click="this.$router.push({path: '/PersonalPage'});">返回</button>
+      </div>
     </div>
   </div>
 </template>
@@ -143,13 +183,13 @@ function toggleCollect() {
 }
 
 .comments_ares {
-    width: 500px; /* 固定宽度 */
-    height: 400px; /* 固定高度 */
-    overflow-y: auto; /* 当内容超出高度时显示垂直滚动条 */
-    overflow-x: hidden; /* 隐藏水平滚动条 */
-    border: 1px solid #ccc; /* 边框，可选 */
-    padding: 10px; /* 内边距，可选 */
-  }
+  width: 500px; /* 固定宽度 */
+  height: 400px; /* 固定高度 */
+  overflow-y: auto; /* 当内容超出高度时显示垂直滚动条 */
+  overflow-x: hidden; /* 隐藏水平滚动条 */
+  border: 1px solid #ccc; /* 边框，可选 */
+  padding: 10px; /* 内边距，可选 */
+}
 
 .comments_ares {
   margin-bottom: 10px; /* 评论之间的间距，可选 */
