@@ -52,7 +52,6 @@ export default {
       // 获取机器人列表
       try {
         await this.$get('botlist/', {}, 'data');
-        console.log("getBots");
         console.log(this.data);
         this.processBotsData(this.data.bots);
       } catch (error) {
