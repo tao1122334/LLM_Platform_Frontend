@@ -170,14 +170,7 @@ export default {
       type: Array,
       default: () => [
         {name: 'Bots'},
-        {name: '作品'},
         {name: '评价'},
-        {name: '操作'},
-        {name: '工作流'},
-        {name: '图像流'},
-        {name: '知识库'},
-        {name: '卡片'},
-        {name: '评论'}
       ]
     },
     filters: {
