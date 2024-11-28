@@ -67,11 +67,11 @@ export default {
       url: '',
       user_id: null,
       bots: [
-        {name: 'Chatgpt3.5-turbo'},
-        {name: 'Chatgpt4o'},
-        {name: 'Chatgpt4o-mini'},
+        {id:1,name: 'Chatgpt3.5-turbo'},
+        {id:2,name: 'Chatgpt4o'},
+        {id:3,name: 'Chatgpt4o-mini'},
       ],
-      selectedBot: {name: 'Chatgpt3.5-turbo'},        // 选中的机器人
+      selectedBot: {id:1,name: 'Chatgpt3.5-turbo'},        // 选中的机器人
       showBotList: false,        // 控制机器人列表弹窗的显示
       messageData: null,
     };
@@ -146,16 +146,13 @@ export default {
           textarea.style.height = 'auto'; // 重置高度
         });
         this.uploadedFiles=[];
-        if (this.$route.query.bot_id){
 
-        }
-        else {
         this.url = 'chat/'+ this.selectedBot.id + '/' + this.group_id + '/';
         const form = new FormData();
         form.append('chat_method', this.selectedBot.name);
         form.append('chat_content', this.newMessage);
         form.append('userfile', this.uploadedFiles);
-        await this.$post(this.url, null, form, 'data');}
+        await this.$post(this.url, {groupid:this.group_id,botid:this.selectedBot.id}, form, 'data');
         console.log(this.data)
         // 解析 JSON 数据
         const receive_data = this.data.chat;
@@ -247,7 +244,7 @@ export default {
       // 清空消息列表
       this.messages = [];
       this.messages.push({ text: '之前的聊天记录已清空，以下是新消息', sender: "system" });
-      this.$delete('del_messagelist/', null, 'data');
+      this.$delete('del_messagelist/', {groupid:this.group_id,botid:this.selectedBot.id}, 'data');
       this.hideMenu();
     },
     addToDesktop() {
@@ -306,7 +303,7 @@ export default {
       try {
         await this.$get(
             'messagelist/',
-            null,
+            {groupid:this.group_id,botid:this.selectedBot.id},
             'messageData',
             '',
             ''
@@ -382,6 +379,7 @@ export default {
     document.addEventListener('click', this.handleOutsideClick.bind(this));
     //TODO: 向后端请求主页的消息记录，并且将message设置为请求的列表  method: GET url: messagelist 已完成
     if (this.$route.query.bot_id){
+      this.group_id = 0;
       await this.$get(
             'get_bot_msg/',
             { botid: this.$route.query.bot_id },
@@ -395,7 +393,7 @@ export default {
       this.getMessageList();
     }
       await this.$get('botlist/', {}, 'data');
-      this.bots = [...this.bots, ...this.data.bots];
+      this.bots = this.data.bots;
   },
 
   beforeDestroy() {
