@@ -181,18 +181,25 @@ export default {
       <div @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer">
         Bot 商店
       </div>
-      <div @click="getUserTable" style="cursor: pointer">
-        导出用户
-      </div>
-      <div @click="getBotTable" style="cursor: pointer">
-        导出Bot
-      </div>
       <div @click="handleRecharge" style="cursor: pointer">
         充值
       </div>
       <div @click="goToLogin" style="cursor: pointer">
       登录
       </div>
+      <div @click="getUserTable" style="cursor: pointer">
+        导出用户
+      </div>
+      <div @click="getBotTable" style="cursor: pointer">
+        导出Bot
+      </div>
+      <div @click="getBotTable" style="cursor: pointer">
+        导出充值记录
+      </div>
+      <div @click="getBotTable" style="cursor: pointer">
+        导出bot评论
+      </div>
+
     </div>
 
     <div>
