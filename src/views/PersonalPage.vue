@@ -3,7 +3,12 @@
     <!-- 头部栏 -->
     <div class="header" :style="headerStyles">
       <div class="profile-section" :style="profileSectionStyles">
-        <img class="profile-avatar" :src="userAvatar" alt="User Avatar" :style="profileAvatarStyles"/>
+<!--        <img class="profile-avatar" :src="userAvatar" alt="User Avatar" :style="profileAvatarStyles"/>-->
+        <AvatarComponent
+            :size="50"
+            :image="userAvatar"
+            :name="userSpaceName"
+        />
         <div class="user-info" :style="userInfoStyles">
           <div class="user-basic-info" :style="userBasicInfoStyles">
             <span :style="userNameStyles">{{ userSpaceName }}</span>
@@ -53,7 +58,12 @@
     <div class="robot-grid" :style="robotGridStyles">
       <div class="robot-card" v-for="robot in filteredRobots" :key="robot.id" :style="robotCardStyles">
         <div :style="robotHeaderStyles">
-          <img :src="robot.icon || defaultRobotIcon" alt="Robot Icon" :style="robotIconStyles"/>
+<!--          <img :src="robot.icon || defaultRobotIcon" alt="Robot Icon" :style="robotIconStyles"/>-->
+          <AvatarComponent
+              :size="40"
+              :image="robot.icon || defaultRobotIcon"
+              :name="robot.name"
+          />
           <h3 :style="robotNameStyles">{{ robot.name }}</h3>
         </div>
         <p :style="robotDescriptionStyles">{{ robot.description }}</p>
@@ -107,8 +117,11 @@
 <!--todo: 自定义机器人详情界面，不应该弹出对话，请参考figma或者再向我确认-->
 //this.$router.push({ path: `/BotManager` });这里弹到机器人管理界面,具体功能并未详细设计
 <script>
+import AvatarComponent from "@/views/AvatarComponent.vue";
+
 export default {
   name: 'PersonalPage',
+  components: {AvatarComponent},
   props: {
     userAvatar: {
       type: String,
@@ -449,6 +462,7 @@ export default {
   },
   data() {
     return {
+      botData: null,
       // 控制弹窗的显示与隐藏
       isModalVisible: false,
       // 表单数据
@@ -461,8 +475,7 @@ export default {
       searchQuery: '',
       selectedFilter: 'all',
       robots: [
-        {id: 1, name: '123', description: '功能 - Function call模型，使用频率 211次', icon: ''},
-        {id: 2, name: '机器人2', description: '描述2', icon: ''},
+
       ]
     };
   },
@@ -503,6 +516,7 @@ export default {
         this.$router.push({path: '/BotShop'});
         // 例如：导航到Bots页面或显示Bots相关信息
       } else if (option.name === '作品') {
+        userSpaceName
         // 处理作品按钮的逻辑
         console.log('作品按钮被点击');
       } else if (option.name === '评价') {
@@ -541,10 +555,20 @@ export default {
     setRobot(robot) {
       this.$router.push({path: `/BotManager`});
     },
+    async get_bot_list() {
+      try {
+        await this.$get('botlist/', {}, 'botData');
+        console.log(this.botData);
+        this.robots = this.botData.bots;
+      } catch (error) {
+        console.error('Error fetching bot list: ', error);
+      }
+    },
   },
   mounted() {
     this.id = this.$route.query.creator_id;
     console.log(this.id);
+    this.get_bot_list();
   }
 };
 </script>

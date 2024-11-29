@@ -1,19 +1,20 @@
 <template>
-  <div style="display: flex; flex-grow: 1;">
+  <div>
+    <!-- 将父组件的数据传递给 PersonalPage 组件 -->
     <PersonalPage
-        :user-avatar="'path/to/new-avatar.png'"
-        :user-space-name="'PlayWithAI'"
-        :user-handle="'@PlayWithAI'"
-        :user-description="'一个对万物充满好奇的程序员，喜欢分享和学习新技术。'"
-        :following-count="120"
-        :follower-count="3000"
-        :like-count="500"
-        :follow-button-text="'关注'"
-        :show-share-button="true"
-        :show-more-options-button="true"
-        :create-button-text="'发帖'"
-        :options="[{ name: 'Bots' }, { name: '作品' }, { name: '评价' }]"
-        :filters="[{ label: '全部', value: 'all' }, { label: '最新', value: 'new' }, { label: '热门', value: 'hot' }]"
+        :user-avatar="userAvatar"
+        :user-space-name="userSpaceName"
+        :user-handle="userHandle"
+        :user-description="userDescription"
+        :following-count="followingCount"
+        :follower-count="followerCount"
+        :like-count="likeCount"
+        :follow-button-text="followButtonText"
+        :show-share-button="showShareButton"
+        :show-more-options-button="showMoreOptionsButton"
+        :create-button-text="createButtonText"
+        :options="options"
+        :filters="filters"
         @create-robot="handleCreateRobot"
         @select-option="handleSelectOption"
         @view-robot="handleViewRobot"
@@ -29,31 +30,52 @@ import PersonalPage from './PersonalPage.vue';
 
 export default {
   components: {
-    PersonalPage,
+    PersonalPage
   },
-  data(){
+  data() {
     return {
-      userData: null
-    }
+      // 存储父组件的数据
+      userAvatar: 'path/to/avatar.png',
+      userSpaceName: '个人空间',
+      userHandle: '@UserHandle',
+      userDescription: '一个程序员，喜欢学习新技术。',
+      followingCount: 120,
+      followerCount: 3000,
+      likeCount: 500,
+      followButtonText: '关注',
+      showShareButton: true,
+      showMoreOptionsButton: true,
+      createButtonText: '创建机器人',
+      options: [
+        { name: 'Bots' },
+        { name: '作品' },
+        { name: '评价' }
+      ],
+      filters: [
+        { label: '全部', value: 'all' },
+        { label: '最新', value: 'new' },
+        { label: '热门', value: 'hot' }
+      ]
+    };
   },
   methods: {
     handleCreateRobot() {
-      console.log('Creating a new robot...');
+      console.log("Create robot action triggered");
     },
     handleSelectOption(option) {
-      console.log(`Option selected: ${option.name}`);
+      console.log("Selected option:", option);
     },
     handleViewRobot(robot) {
-      console.log(`Viewing details for robot: ${robot.name}`);
+      console.log("View robot:", robot);
     },
     handleFollowUser() {
-      console.log('Follow user clicked');
+      console.log("Follow user action triggered");
     },
     handleShareProfile() {
-      console.log('Share profile clicked');
+      console.log("Share profile action triggered");
     },
     handleMoreOptions() {
-      console.log('More options clicked');
+      console.log("More options triggered");
     },
     async getUserMsg(id) {
       try {
@@ -66,14 +88,11 @@ export default {
     },
   },
   mounted() {
-    //   todo: 根据跳转传来的id，向后端请求个人信息 url:get_user_msg 已完成
-    const id = this.$route.query.creator_id;
-    this.getUserMsg(id);
+    const route = this.$route; // 获取当前路由对象
+    console.log('当前路由参数：', route.query);
 
-  }
+    const creator_id = route.query.creator_id; // 获取 query 参数
+    this.getUserMsg(creator_id)
+  },
 };
 </script>
-
-<style scoped>
-
-</style>
