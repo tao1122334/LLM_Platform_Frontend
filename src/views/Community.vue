@@ -97,9 +97,7 @@ export default {
   data() {
     return {
       data:null,
-      comments: [
-
-      ],
+      comments: [],
       isPostModalOpen: false, // 控制弹窗显示
       newPost: { // 存储新帖内容
         title: '',
@@ -111,6 +109,7 @@ export default {
   },
   methods: {
     refreshPage() {
+      this.getComments(); // 刷新评论列表
       alert('页面已刷新');
     },
     openPostModal() {
@@ -136,14 +135,15 @@ export default {
         });
         await this.$post('comment4bot/', null, form, 'addData');
         console.log(this.addData)
-        // 将新帖添加到评论数组
-        this.comments.push({
-          username: '新用户', // 默认用户名，可根据实际需求更改
-          content: this.newPost.content,
-          likes: 0,
-          replies: 0,
-          avatar: 'https://via.placeholder.com/40'
-        });
+        // // 将新帖添加到评论数组
+        // this.comments.push({
+        //   username: '', // 默认用户名，可根据实际需求更改
+        //   content: this.newPost.content,
+        //   likes: 0,
+        //   replies: 0,
+        //   rating: this.newPost.star,
+        // });
+        await this.getComments();
         this.postCount++; // 更新帖子数量
         this.closePostModal(); // 关闭弹窗
         alert('发帖成功！帖子已更新。');
@@ -158,6 +158,7 @@ export default {
       this.$router.push({ path: '/OthersPage' }); // 模拟跳转到作者的空间
     },
     async getComments() {
+      this.comments = [];
       await this.$get('comments4bot', {id: this.$route.query.bot_id}, 'data');
       console.log("comments")
       console.log(this.data)
