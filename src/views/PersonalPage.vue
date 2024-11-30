@@ -67,7 +67,7 @@
           <h3 :style="robotNameStyles">{{ robot.name }}</h3>
         </div>
         <p :style="robotDescriptionStyles">{{ robot.description }}</p>
-        <button @click="setRobot(robot)" :style="viewButtonStyles">{{ viewButtonText }}</button>
+        <button @click="goToBotManager(robot.id)" :style="viewButtonStyles">{{ viewButtonText }}</button>
       </div>
     </div>
     <!-- Element Plus Dialog -->
@@ -513,6 +513,9 @@ export default {
     },
     createRobot() {
 
+    },
+    goToBotManager(id) {
+      this.$router.push({path: `/BotManager`, query: {bot_id: id}});
     },
     // 处理按钮点击的方法
     selectOption(option) {
