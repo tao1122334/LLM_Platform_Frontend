@@ -82,7 +82,9 @@ export default {
       this.showSettings = !this.showSettings;
     },
     toggleAdminSettings() {
-      this.showAdminSettings = !this.showAdminSettings;
+      // this.showAdminSettings = !this.showAdminSettings;
+ // 在新标签页或新窗口中打开一个页面
+    window.open('http://localhost:8000/admin/');
       this.hideMenu();
     },
     closeModal() {
@@ -166,6 +168,9 @@ export default {
         console.log(questions)
         this.addMessageAssistant(botText, null, questions);
         this.newMessage = "";
+        if (this.data.msg){
+          alert(this.data.msg)
+        }
       }else {
         alert("消息不能为空");
       }
@@ -179,7 +184,7 @@ export default {
     },
     async postAdminSettings() {
       try {
-        await this.$post('post_user_rating/', null, this.formData, 'data');
+        await this.$post('update_bot/', null, this.formData, 'data');
       } catch (error) {
         console.error("提交管理员设置失败:", error);
       }
@@ -195,12 +200,12 @@ export default {
         console.error("接收对话消息失败:", error);
       }
     },
-    handleSubmit() {
+    async handleSubmit() {
       // 提交表单数据，并通过事件返回到父组件
-      this.postAdminSettings();
+      await this.postAdminSettings();
       this.formData = {
         defaultBot: 'GPT 3.5',
-        maxRate: 100000000,
+        maxRate: 100,
         gpt35Cost: 0,
         gpt40Cost: 0,
         gpt40MiniCost: 0
@@ -649,7 +654,7 @@ export default {
 
         <!-- 使用最大频率 -->
         <div class="form-group">
-          <label for="maxRate">使用最大频率:</label>
+          <label for="maxRate">当天使用最大频率:</label>
           <input type="number" id="maxRate" v-model="formData.maxRate" />
         </div>
 

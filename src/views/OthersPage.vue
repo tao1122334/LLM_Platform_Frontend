@@ -5,8 +5,8 @@
         :user-space-name="'PlayWithAI'"
         :user-handle="'@PlayWithAI'"
         :user-description="'一个对万物充满好奇的程序员，喜欢分享和学习新技术。'"
-        :following-count="120"
-        :follower-count="3000"
+        :following-count=this.userData.user_given_rating
+        :follower-count=this.userData.user_rating
         :like-count="500"
         :follow-button-text="'关注'"
         :show-share-button="true"

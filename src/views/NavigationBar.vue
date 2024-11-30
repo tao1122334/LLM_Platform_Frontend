@@ -199,7 +199,9 @@ export default {
       <div @click="getBotTable" style="cursor: pointer">
         导出bot评论
       </div>
-
+      <div @click="getBotTable" style="cursor: pointer">
+        发放奖励
+      </div>
     </div>
 
     <div>

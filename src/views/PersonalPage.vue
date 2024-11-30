@@ -12,8 +12,8 @@
           <p v-if="userDescription" :style="userDescriptionStyles">{{ userDescription }}</p>
           <div v-if="followingCount !== null && followerCount !== null && likeCount !== null" class="user-stats"
                :style="userStatsStyles">
-            <span :style="statStyles">关注 {{ followingCount }}</span>
-            <span :style="statStyles">粉丝 {{ followerCount }}</span>
+            <span :style="statStyles">得分 {{ followingCount }}</span>
+            <span :style="statStyles">排名 {{ followerCount }}</span>
             <span :style="statStyles">获赞 {{ likeCount }}</span>
           </div>
         </div>
