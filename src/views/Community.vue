@@ -31,9 +31,8 @@
 <!--              style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"-->
 <!--              @click="goToUserSpace(comment.username)">-->
           <AvatarComponent :size="40"
-                           :username="comment.username"
-                           :image="comment.avatar"
-                           @click="goToUserSpace(comment.username)"></AvatarComponent>
+                           :name="comment.username"
+                           @click="goToUserSpace(comment.username)"/>
           <span style="font-weight: bold;cursor: pointer;"
                 @click="goToUserSpace(comment.username)">
             @{{ comment.username }}
@@ -45,15 +44,16 @@
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
           <div></div> <!-- 用于占位对齐 -->
           <div>
-            <button
-                @click="likeComment(index)"
-                style="background: none; border: none; cursor: pointer; margin-left: 8px;">
-              👍 赞 {{ comment.likes }}
-            </button>
-            <button
-                style="background: none; border: none; cursor: pointer; margin-left: 8px;">
-              💬 {{ comment.replies }} 评论
-            </button>
+<!--            <button-->
+<!--                @click="likeComment(index)"-->
+<!--                style="background: none; border: none; cursor: pointer; margin-left: 8px;">-->
+<!--              👍 赞 {{ comment.likes }}-->
+<!--            </button>-->
+<!--            <button-->
+<!--                style="background: none; border: none; cursor: pointer; margin-left: 8px;">-->
+<!--              💬 {{ comment.replies }} 评论-->
+<!--            </button>-->
+            <span>评分: {{ comment.rating }}</span>
           </div>
         </div>
       </div>
@@ -159,14 +159,17 @@ export default {
     },
     async getComments() {
       await this.$get('comments4bot', {id: this.$route.query.bot_id}, 'data');
+      console.log("comments")
       console.log(this.data)
       this.data.comments.forEach(item => {
         this.comments.push({
+          avatar: item.avatar || null,
           bot: item.bot,
           id: item.id,
           created_at: item.created_at,
-          username: item.from_user,
-          content: item.comment,
+          username: item.user__username,
+          content: item.content,
+          rating: item.rating,
           // likes: item.likes,
           // replies: item.replies,
           // avatar: item.avatar

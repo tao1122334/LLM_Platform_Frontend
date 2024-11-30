@@ -522,7 +522,6 @@ export default {
         this.$router.push({path: '/BotShop'});
         // 例如：导航到Bots页面或显示Bots相关信息
       } else if (option.name === '作品') {
-        userSpaceName
         // 处理作品按钮的逻辑
         console.log('作品按钮被点击');
       } else if (option.name === '评价') {
@@ -570,6 +569,26 @@ export default {
         console.error('Error fetching bot list: ', error);
       }
     },
+    // 处理关注按钮点击
+    followUser() {
+      // 可以传递一些参数给父组件，例如 userHandle
+      this.$emit('follow-user', this.userHandle);
+    },
+
+    // 处理分享按钮点击
+    shareProfile() {
+      // 同样传递给父组件一些参数（比如 userHandle 或者其他数据）
+      this.$emit('share-profile', { userHandle: this.userHandle });
+    },
+
+    // 处理更多选项按钮点击
+    moreOptions() {
+      this.$emit('more-options', { userHandle: this.userHandle });
+    },
+    // 处理查看机器人
+    viewRobot() {
+      this.$emit('view-robot');
+    }
   },
   mounted() {
     this.id = this.$route.query.creator_id;

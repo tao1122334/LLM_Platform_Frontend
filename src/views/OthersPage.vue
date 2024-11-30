@@ -38,7 +38,7 @@ export default {
       userAvatar: 'path/to/avatar.png',
       userSpaceName: '个人空间',
       userHandle: '@UserHandle',
-      userDescription: '一个程序员，喜欢学习新技术。',
+      userDescription: '这是一个用户的个人描述',
       followingCount: 120,
       followerCount: 3000,
       likeCount: 500,
@@ -70,9 +70,11 @@ export default {
     },
     handleFollowUser() {
       console.log("Follow user action triggered");
+      //Todo:这里处理关注的逻辑
     },
     handleShareProfile() {
       console.log("Share profile action triggered");
+      //Todo:这里处理分享的逻辑
     },
     handleMoreOptions() {
       console.log("More options triggered");
@@ -80,8 +82,11 @@ export default {
     async getUserMsg(id) {
       try {
         await this.$get('get_user_msg', {id}, 'userData',);
+        console.log("otherPage")
         console.log(this.userData)
-        //这里需要对传回来的个人信息结构进行分析,处理this.userData
+        this.userSpaceName = this.userData.user_dict.username;
+        this.userDescription = this.userData.user_dict.description || "这个用户很懒，什么都没写";
+
       } catch (error) {
         console.error('Error fetching user data: ', error);
       }

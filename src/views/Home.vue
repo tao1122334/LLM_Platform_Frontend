@@ -8,10 +8,12 @@ import FileRenderer from "@/views/FileRenderer.vue";
 import { marked } from 'marked'; // 导入 marked
 import JSON5 from "json5";
 import AvatarComponent from "@/views/AvatarComponent.vue";
+import messageType from "@/views/messageType.vue";
 
 export default {
   name: 'Home',
   components: {
+    messageType,
     AvatarComponent,
     IconTooling,
     IconEcosystem,
@@ -74,6 +76,7 @@ export default {
       selectedBot: {id:1,name: 'Chatgpt3.5-turbo'},        // 选中的机器人
       showBotList: false,        // 控制机器人列表弹窗的显示
       messageData: null,
+      renderedText: "", // 用于渲染文本
     };
   },
   methods: {
@@ -369,15 +372,34 @@ export default {
         console.error(error);
       }
     },
-    // 渲染 Markdown 内容
-    renderMarkdown(text) {
-      try {
-        // 使用 marked 解析 Markdown 文本
-        return marked(text);
-      } catch (error) {
-        console.error('Markdown 渲染失败:', error);
-        return text; // 如果解析失败，返回原始文本
-      }
+    // // 渲染 Markdown 内容
+    // renderMarkdown(text) {
+    //   try {
+    //     // 使用 marked 解析 Markdown 文本
+    //     return marked(text);
+    //   } catch (error) {
+    //     console.error('Markdown 渲染失败:', error);
+    //     return text; // 如果解析失败，返回原始文本
+    //   }
+    // },
+    // // 逐字输出的效果
+    // typeText(text) {
+    //   let index = 0;
+    //   const renderedHTML = this.renderMarkdown(text); // 先将 Markdown 解析为 HTML
+    //   let plainText = renderedHTML.replace(/<[^>]*>/g, ''); // 去掉 HTML 标签，提取纯文本
+    //
+    //   // 使用 setInterval 每隔 100ms 渲染一个字符
+    //   const interval = setInterval(() => {
+    //     this.renderedText = this.renderMarkdown(plainText.substring(0, index)); // 渲染到 HTML 元素中
+    //     index++;
+    //
+    //     if (index > plainText.length) {
+    //       clearInterval(interval); // 当所有字符渲染完毕，停止定时器
+    //     }
+    //   }, 100);
+    // },
+    typeTextFinished(message) {
+      this.messages[message].rendered = true;
     },
   },
   async mounted() {
@@ -395,7 +417,7 @@ export default {
       console.log(this.data.bot_dict)
       this.selectedBot = this.data.bot_dict;
     }else {
-      this.getMessageList();
+      await this.getMessageList();
     }
       await this.$get('botlist/', {}, 'data');
       this.bots = this.data.bots;
@@ -473,17 +495,23 @@ export default {
           <div
               v-else-if="message.sender === 'assistant'"
               style="display: flex; justify-content: flex-start; width: 100%; align-items: center; gap: 10px;">
-            <AvatarComponent
+            <div style="width: 40px; height: 40px;">
+              <AvatarComponent
                 :src="message.photo"
                 :name="message.sender"
                 :size="40"
                 shape="circle"
             />
+            </div>
             <!-- 使用 v-html 渲染 Markdown -->
-            <p
-                v-html="renderMarkdown(message.text)"
-                style="background-color: #f1f1f1; color: black; padding: 10px 15px; border-radius: 10px; max-width: 60%; word-wrap: break-word;">
-            </p>
+            <div>
+              <messageType
+                  :message="message.text"
+                  :id="index"
+                  @typing-finished="typeTextFinished"
+              />
+            </div>
+
           </div>
 
 
@@ -496,7 +524,7 @@ export default {
             </div>
           </template>
 
-          <div v-if="message.questions && message.questions.length > 0" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin: 20px 0;">
+          <div v-if="message.rendered && message.questions && message.questions.length > 0" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin: 20px 0;">
             <button
                 v-for="(question, index) in message.questions"
                 :key="index"
@@ -508,9 +536,6 @@ export default {
               {{ question }}
             </button>
           </div>
-
-
-
 
         </div>
       </section>
