@@ -129,7 +129,7 @@ export default {
         const form = new FormData();
         form.append('comment', this.newPost.content);
         form.append('id',this.$route.query.bot_id)
-        form.append('star',this.newPost.star)
+        form.append('rating',this.newPost.star)
         // 使用 forEach 遍历 FormData 内容
         form.forEach((value, key) => {
           console.log(key, value); // 打印每个键值对

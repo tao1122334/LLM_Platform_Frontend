@@ -561,8 +561,10 @@ export default {
       this.$router.push({path: `/BotManager`});
     },
     async get_bot_list() {
+      this.id = this.$route.query.creator_id;
+      console.log(this.id);
       try {
-        await this.$get('botlist/', {}, 'botData');
+        await this.$get('user_botlist/', {id:this.$route.query.creator_id}, 'botData');
         console.log(this.botData);
         this.robots = this.botData.bots;
       } catch (error) {
@@ -591,8 +593,6 @@ export default {
     }
   },
   mounted() {
-    this.id = this.$route.query.creator_id;
-    console.log(this.id);
     this.get_bot_list();
   }
 };
