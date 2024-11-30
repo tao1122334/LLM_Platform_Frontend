@@ -221,15 +221,26 @@ export default {
       e.target.style.backgroundColor = '#f1f1f1'
     },
     handleFileUpload(event) {
-      const files = event.target.files;
-      if (files.length > 0) {
-        // 将文件逐个推入数组
-        for (let i = 0; i < files.length; i++) {
-          this.uploadedFiles.push(files[i]);
-        }
+  const files = event.target.files;
+  if (files.length > 0) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileType = file.type;
+      this.uploadedFiles.push(file);
+      // 判断文件类型
+      if (fileType.startsWith('audio/')) {
+        console.log('上传的是音频文件:', file.name);
+      } else if (fileType === 'application/pdf') {
+        console.log('上传的是PDF文件:', file.name);
+      } else if (fileType.startsWith('application/vnd.ms-excel') || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+        console.log('上传的是Excel文件:', file.name);
+      } else {
+        console.log('上传的是其他类型的文件:', file.name);
       }
-      event.target.value = ''; // 清空输入框以允许上传同样的文件
-    },
+    }
+  }
+  event.target.value = ''; // 清空输入框，以允许上传相同文件
+},
     // 移除文件
     removeFile(index) {
       this.uploadedFiles.splice(index, 1); // 删除文件
