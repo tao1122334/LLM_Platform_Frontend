@@ -1,6 +1,8 @@
 <template>
   <div>
-    <p v-html="renderedText" class="message-text"></p>
+    <!-- 根据 mode 渲染内容 -->
+    <p v-html="renderedText" class="message-text" v-if="mode === 'typewriter'"></p>
+    <p v-html="renderMarkdown(message)" class="message-text" v-if="mode === 'direct'"></p>
   </div>
 </template>
 
@@ -16,6 +18,13 @@ export default {
     id: { // 接收父组件传递的消息 ID
       type: Number,
       required: false
+    },
+    mode: { // 接收父组件传递的模式，决定是打字机效果还是直接渲染
+      type: String,
+      default: 'typewriter', // 默认使用打字机效果
+      validator(value) {
+        return value === 'typewriter' || value === 'direct';
+      }
     }
   },
   data() {
@@ -28,14 +37,22 @@ export default {
     // 监听 message 属性的变化
     message(newMessage) {
       if (newMessage) {
-        this.typeText(newMessage); // 每次接收到新消息时，触发逐字输出
+        if (this.mode === 'typewriter') {
+          this.typeText(newMessage); // 打字机模式下触发逐字输出
+        } else {
+          this.renderedText = this.renderMarkdown(newMessage); // 直接渲染模式下直接渲染
+        }
       }
     }
   },
   mounted() {
-    // 如果组件一开始就有 message，触发打字机效果
+    // 如果组件一开始就有 message，触发相应渲染方法
     if (this.message) {
-      this.typeText(this.message);
+      if (this.mode === 'typewriter') {
+        this.typeText(this.message);
+      } else {
+        this.renderedText = this.renderMarkdown(this.message);
+      }
     }
   },
   methods: {
@@ -43,11 +60,14 @@ export default {
     renderMarkdown(text) {
       try {
         // 使用 marked 解析 Markdown 文本
+        this.$emit('typing-finished', this.id);
         return marked(text);
       } catch (error) {
         console.error('Markdown 渲染失败:', error);
+        this.$emit('typing-finished', this.id);
         return text; // 如果解析失败，返回原始文本
       }
+
     },
     // 逐字输出的效果
     typeText(text) {
@@ -67,7 +87,7 @@ export default {
           clearInterval(this.interval);
           this.$emit('typing-finished', this.id);
         }
-      }, 50); // 50ms 间隔
+      }, Math.floor(Math.random()*51)); // 50ms 间隔
     }
   }
 };

@@ -374,6 +374,7 @@ export default {
               questions: fields.heuristic_questions || [], // 启发式问题
               photo: "", // 机器人头像
             });
+            this.messages[this.messages.length - 1].old = true;
           }
 
 
@@ -519,6 +520,7 @@ export default {
               <messageType
                   :message="message.text"
                   :id="index"
+                  :mode="message.old ? 'direct' : 'typewriter'"
                   @typing-finished="typeTextFinished"
               />
             </div>
