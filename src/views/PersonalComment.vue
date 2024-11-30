@@ -111,7 +111,7 @@ export default {
         console.error('获取评论失败:', error);
       }
     },
-        async getUserMsg(id) {
+    async getUserMsg(id) {
       try {
         await this.$get('get_user_msg', {id}, 'userData',);
         let msg;

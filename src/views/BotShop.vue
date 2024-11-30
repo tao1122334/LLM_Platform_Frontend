@@ -218,13 +218,13 @@ export default {
           <!-- 浏览量、收藏量、评论量 -->
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-size: 14px; color: #999;">
-              <i class="iconfont">&#xe600;</i> {{ bot.views }}
+              {{ "浏览 "+bot.views }}
             </span>
             <span style="font-size: 14px; color: #999;">
-              <i class="iconfont">&#xe601;</i> {{ bot.likes }}
+              {{ "收藏 "+bot.likes }}
             </span>
             <span style="font-size: 14px; color: #999;">
-              <i class="iconfont">&#xe602;</i> {{ bot.comments }}
+              {{ "评论 "+bot.comments }}
             </span>
           </div>
         </div>

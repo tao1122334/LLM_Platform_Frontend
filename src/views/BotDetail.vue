@@ -1,24 +1,55 @@
 <template>
   <div style="position: absolute; left: 0; top: 0; width: 95vw; height: 95vh; display: flex; flex-direction: column; background-color: #f5f5f5;">
     <!-- 头部信息栏 -->
+    <!-- 头部信息栏 -->
     <div style="width: 100%; padding: 20px; display: flex; justify-content: space-between; align-items: center; background-color: #fff; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);">
       <!-- 左侧：作者信息 -->
-      <div style="display: flex; align-items: center;">
-        <button @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer;">
-          <i class="iconfont">&#xe605;</i>
+      <div style="display: flex; align-items: center; gap: 15px;">
+        <!-- 返回按钮 -->
+        <button @click="this.$router.push({path: '/BotShop'});"
+                style="cursor: pointer;
+         background-color: #f8f9fa;
+         border: 2px solid #007bff;
+         color: #007bff;
+         border-radius: 30px;
+         padding: 8px 20px;
+         display: flex;
+         align-items: center;
+         gap: 8px;
+         font-size: 16px;
+         transition: all 0.3s ease;
+         box-shadow: 0 2px 6px rgba(0, 123, 255, 0.2);">
+
+          <i class="fa fa-arrow-left" style="font-size: 18px;"></i>
+          <span>返回</span>
         </button>
-        <img :src="author.avatar" alt="Author Avatar" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 12px; cursor: pointer;" @click="goToAuthorPage(author.id)" />
+
+        <!-- 作者头像和标题信息 -->
+        <AvatarComponent
+            :size="50"
+            :name="author.name"
+            :image="author.avatar"
+            shape="square"
+            @click="goToAuthorPage(author.id)" />
+
         <div>
-          <h3 style="margin: 0; font-size: 18px; font-weight: 600; cursor: pointer;" @click="goToAuthorPage(author.id)">{{ bot.title }} {{bot.id}}</h3>
-          <div style="font-size: 14px; color: #888;">{{ author.name }} 发布于 {{ bot.releaseDate }}</div>
+          <h3 style="margin: 0; font-size: 18px; font-weight: 600; cursor: pointer;" @click="goToAuthorPage(author.id)">
+            {{ bot.title }}
+          </h3>
+          <div style="font-size: 14px; color: #888; margin-top: 5px;">
+            {{ author.name }} 发布于 {{ bot.releaseDate }}
+          </div>
         </div>
       </div>
+
       <!-- 右侧：收藏数和分享按钮 -->
       <div style="display: flex; align-items: center; gap: 20px;">
-        <span style="font-size: 16px; cursor: pointer;" @click="collect">
-          <i class="iconfont">&#xe600;</i> {{ bot.favorites }} 收藏
-        </span>
-        <button style="padding: 8px 16px; border: none; background: #007bff; color: #fff; border-radius: 4px; cursor: pointer;">
+    <span style="font-size: 16px; cursor: pointer;" @click="collect">
+      {{ bot.favorites }} 收藏
+    </span>
+
+        <!-- 分享按钮 -->
+        <button style="padding: 8px 16px; border: none; background-color: #007bff; color: #fff; border-radius: 4px; cursor: pointer; font-size: 14px;">
           分享
         </button>
       </div>
@@ -58,19 +89,21 @@
 <script>
 import Home from "@/views/Home.vue";
 import Community from "@/views/Community.vue";
+import AvatarComponent from "@/views/AvatarComponent.vue";
 
 export default {
   components: {
     Home,
     Community,
+    AvatarComponent
   },
   data() {
     return {
       // 作者和机器人信息
       author: {
-        id: 1,
-        name: "PlayWithAI",
-        avatar: "https://via.placeholder.com/50"
+        // id: 1,
+        // name: "PlayWithAI",
+        // avatar: "https://via.placeholder.com/50"
       },
       bot: {
         id: 1,
@@ -145,9 +178,37 @@ export default {
             '',
             ''
         );
+        console.log("bot_detail")
         console.log(this.botData)
         //这里做一个对数据的检查和处理
-        this.bot = this.botData;
+        if (this.botData === null) {
+          alert('获取机器人信息失败！');
+          return;
+        }
+        let message = this.botData.bot_dict;
+        this.author = {
+          id: message.creator.id,
+          name: message.creator.username,
+          avatar: message.creator_avatar || null,
+          email: message.creator.email,
+          balance: message.creator.balance,
+        }
+        this.bot = {
+          id: message.id,
+          title: message.name,
+          price_per_use: message.price_per_use,
+          usage_limit: message.usage_limit,
+          is_default: message.is_default,
+          avatar: message.bot_avatar_url,
+          // releaseDate: message.release_date,
+          // favorites: message.favorites,
+          // likes: message.likes,
+          // usageCount: message.usage_count,
+          // dialogCount: message.dialog_count,
+          // description: message.description,
+          // configurations: message.configurations,
+          // 返回数据中暂时没有这些信息
+        }
       } catch (error) {
         console.error(error);
       }
@@ -168,9 +229,12 @@ export default {
 <style scoped>
 /* 引入自定义图标字体库 */
 .iconfont {
-  font-family: "iconfont",serif;
-  font-style: normal;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  font-family: "iconfont", serif;  /* 使用图标字体 */
+  font-style: normal;              /* 确保字体是正常样式 */
+  font-weight: normal;             /* 确保字体的粗细是正常的 */
+  -webkit-font-smoothing: antialiased;  /* 让字体在 WebKit 浏览器上平滑显示 */
+  -moz-osx-font-smoothing: grayscale;  /* 在 macOS 上平滑字体 */
+  text-align: center;              /* 对齐图标 */
 }
+
 </style>

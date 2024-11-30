@@ -62,7 +62,7 @@ export default {
         gpt40MiniCost: 0  // GPT 4.0 mini 花费
       },
       data: null,
-      bot_id: 3,
+      bot_id: 0,
       group_id: 1,
       url: '',
       user_id: null,

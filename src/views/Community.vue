@@ -2,7 +2,7 @@
   <div style="width: 100%; max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
     <!-- 顶部导航栏 -->
     <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background-color: #f5f5f5; font-size: 10px">
-      <h1>社区 (帖子数量: {{ postCount }})</h1>
+      <h1>社区 (帖子数量: {{ comments.length }})</h1>
       <div>
         <button
             @click="refreshPage"
@@ -25,11 +25,15 @@
           style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
         <!-- 点击头像跳转到作者空间 -->
         <div style="display: flex; align-items: center; cursor: pointer;">
-          <img
-              :src="comment.avatar"
-              alt="头像"
-              style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"
-              @click="goToUserSpace(comment.username)">
+<!--          <img-->
+<!--              :src="comment.avatar"-->
+<!--              alt="头像"-->
+<!--              style="width: 40px; height: 40px; border-radius: 50%; margin-right: 10px;"-->
+<!--              @click="goToUserSpace(comment.username)">-->
+          <AvatarComponent :size="40"
+                           :username="comment.username"
+                           :image="comment.avatar"
+                           @click="goToUserSpace(comment.username)"></AvatarComponent>
           <span style="font-weight: bold;cursor: pointer;"
                 @click="goToUserSpace(comment.username)">
             @{{ comment.username }}
@@ -63,6 +67,13 @@
 <!--             style="width: 100%; padding: 8px; margin-bottom: 10px;"/>-->
       <textarea v-model="newPost.content" placeholder="请输入内容" rows="5"
                 style="width: 100%; padding: 8px; margin-bottom: 10px;"></textarea>
+      <!-- 五星好评按钮组 -->
+      <div style="display: flex; justify-content: flex-start; margin-bottom: 10px;">
+        <span v-for="index in 5" :key="index" @click="setStar(index)"
+              :style="{'cursor': 'pointer', 'color': index <= this.newPost.star ? '#FFD700' : '#D3D3D3', 'font-size': '24px'}">
+          ★
+        </span>
+      </div>
       <div style="display: flex; justify-content: flex-end;">
         <button @click="closePostModal"
                 style="padding: 8px 16px; margin-right: 10px; cursor: pointer;">
@@ -78,32 +89,24 @@
 </template>
 
 <script>
+import AvatarComponent from "@/views/AvatarComponent.vue";
 export default {
+  components: {
+    AvatarComponent
+  },
   data() {
     return {
-      postCount: 2, // 初始帖子数量
       data:null,
       comments: [
-        {
-          username: 'tlz9703',
-          content: 'good',
-          likes: 1,
-          replies: 0,
-          avatar: 'https://via.placeholder.com/40'
-        },
-        {
-          username: 'PlayWithAI',
-          content: '精彩案例',
-          likes: 3,
-          replies: 1,
-          avatar: 'https://via.placeholder.com/40'
-        }
+
       ],
       isPostModalOpen: false, // 控制弹窗显示
       newPost: { // 存储新帖内容
         title: '',
-        content: ''
-      }
+        content: '',
+        star: 0
+      },
+      addData: null
     };
   },
   methods: {
@@ -117,13 +120,22 @@ export default {
     closePostModal() {
       this.isPostModalOpen = false; // 关闭发帖弹窗
     },
+    // 设置评分
+    setStar(starValue) {
+      this.newPost.star = starValue;  // 更新评分
+    },
     async submitPost() {
-      if ( this.newPost.content) {
+      if (this.newPost.content) {
         const form = new FormData();
         form.append('comment', this.newPost.content);
         form.append('id',this.$route.query.bot_id)
-        await this.$post('comment4bot/', null, form, 'data');
-        console.log(this.data)
+        form.append('star',this.newPost.star)
+        // 使用 forEach 遍历 FormData 内容
+        form.forEach((value, key) => {
+          console.log(key, value); // 打印每个键值对
+        });
+        await this.$post('comment4bot/', null, form, 'addData');
+        console.log(this.addData)
         // 将新帖添加到评论数组
         this.comments.push({
           username: '新用户', // 默认用户名，可根据实际需求更改
@@ -144,11 +156,28 @@ export default {
     },
     goToUserSpace(username) {
       this.$router.push({ path: '/OthersPage' }); // 模拟跳转到作者的空间
+    },
+    async getComments() {
+      await this.$get('comments4bot', {id: this.$route.query.bot_id}, 'data');
+      console.log(this.data)
+      this.data.comments.forEach(item => {
+        this.comments.push({
+          bot: item.bot,
+          id: item.id,
+          created_at: item.created_at,
+          username: item.from_user,
+          content: item.comment,
+          // likes: item.likes,
+          // replies: item.replies,
+          // avatar: item.avatar
+        });
+
+      })
     }
   },
+
   async mounted() {
-    await this.$get('comments4bot', {id: this.$route.query.bot_id}, 'data');
-    console.log(this.data)
+    await this.getComments();
   }
 };
 </script>
