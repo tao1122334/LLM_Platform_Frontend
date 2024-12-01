@@ -131,6 +131,7 @@ export default {
         timestamp: new Date().toISOString(),
         questions: questions,
         photo: "",
+        rendered: ""
       };
       this.messages.push(newMsg);
     },
@@ -376,6 +377,7 @@ export default {
               timestamp: timestamp,
               questions: fields.heuristic_questions || [], // 启发式问题
               photo: "", // 机器人头像
+              rendered: ""
             });
             this.messages[this.messages.length - 1].old = true;
           }
@@ -414,7 +416,8 @@ export default {
     //   }, 100);
     // },
     typeTextFinished(message) {
-      this.messages[message].rendered = true;
+      console.log("Typing finished:", message);
+      this.messages[message].rendered = "finish";
     },
   },
   async mounted() {
@@ -540,17 +543,19 @@ export default {
             </div>
           </template>
 
-          <div v-if="message.rendered && message.questions && message.questions.length > 0" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin: 20px 0;">
-            <button
-                v-for="(question, index) in message.questions"
-                :key="index"
-                @click="handleClick(question)"
-                style="background: none; border: none; color: #007BFF; font-size: 16px; text-align: left; cursor: pointer; text-decoration: underline; transition: color 0.3s;"
-                @mouseover="handleHover($event, true)"
-                @mouseleave="handleHover($event, false)"
-            >
-              {{ question }}
-            </button>
+          <div v-if="message.rendered">
+            <div v-if="message.questions && message.questions.length > 0" style="display: flex; flex-direction: column; gap: 10px; align-items: flex-start; margin: 20px 0;">
+              <button
+                  v-for="(question, index) in message.questions"
+                  :key="index"
+                  @click="handleClick(question)"
+                  style="background: none; border: none; color: #007BFF; font-size: 16px; text-align: left; cursor: pointer; text-decoration: underline; transition: color 0.3s;"
+                  @mouseover="handleHover($event, true)"
+                  @mouseleave="handleHover($event, false)"
+              >
+                {{ question }}
+              </button>
+            </div>
           </div>
 
         </div>
