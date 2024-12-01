@@ -7,11 +7,11 @@
         <AvatarComponent
             :size="50"
             :image="userAvatar"
-            :name="userSpaceName"
+            :name="userName"
         />
         <div class="user-info" :style="userInfoStyles">
           <div class="user-basic-info" :style="userBasicInfoStyles">
-            <span :style="userNameStyles">{{ userSpaceName }}</span>
+            <span :style="userNameStyles">{{ userName }}</span>
             <span v-if="userHandle" :style="userHandleStyles">{{ userHandle }}</span>
           </div>
           <p v-if="userDescription" :style="userDescriptionStyles">{{ userDescription }}</p>
@@ -45,11 +45,11 @@
         <div class="search-filter" :style="searchFilterStyles">
           <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" :style="searchInputStyles"/>
           <button @click="search" :style="searchButtonStyles">🔍搜索</button>
-          <select v-model="selectedFilter" :style="filterSelectStyles">
-            <option v-for="filter in filters" :key="filter.value" :value="filter.value">
-              {{ filter.label }}
-            </option>
-          </select>
+<!--          <select v-model="selectedFilter" :style="filterSelectStyles">-->
+<!--            <option v-for="filter in filters" :key="filter.value" :value="filter.value">-->
+<!--              {{ filter.label }}-->
+<!--            </option>-->
+<!--          </select>-->
         </div>
       </div>
     </div>
@@ -464,6 +464,7 @@ export default {
         robotName: '',
         robotDescription: '', // 新增的描述字段
       },
+      userName:'',
       id: 1,
       searchQuery: '',
       selectedFilter: 'all',
@@ -592,8 +593,16 @@ export default {
       this.$emit('view-robot');
     }
   },
-  mounted() {
-    this.get_bot_list();
+  async mounted() {
+    await this.get_bot_list();
+    try {
+        await this.$get('get_user_msg', {id:this.$route.query.creator_id}, 'userData',);
+      console.log(this.userData)
+      this.userName = this.userData.user_dict.username
+        //这里需要对传回来的个人信息结构进行分析,处理this.userData
+      } catch (error) {
+        console.error('Error fetching user data: ', error);
+      }
   }
 };
 </script>

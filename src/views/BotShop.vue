@@ -126,9 +126,9 @@ export default {
         <button class="recommend" @click="recommend">
           推荐
         </button>
-        <button class="recommend" @click="getBots">
-          获取
-        </button>
+<!--        <button class="recommend" @click="getBots">-->
+<!--          获取-->
+<!--        </button>-->
         <div style="position: relative;">
           <button
               @click="toggleDropdown"
