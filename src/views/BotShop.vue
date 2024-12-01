@@ -221,7 +221,7 @@ export default {
               {{ "浏览 "+bot.views }}
             </span>
             <span style="font-size: 14px; color: #999;">
-              {{ "收藏 "+bot.likes }}
+              {{ "评分 "+bot.likes }}
             </span>
             <span style="font-size: 14px; color: #999;">
               {{ "评论 "+bot.comments }}
