@@ -150,13 +150,15 @@ export default {
           const textarea = this.$refs.input;
           textarea.style.height = 'auto'; // 重置高度
         });
-        this.uploadedFiles=[];
+
 
         this.url = 'chat/'+ this.selectedBot.id + '/' + this.group_id + '/';
         const form = new FormData();
         form.append('chat_method', this.selectedBot.name);
         form.append('chat_content', this.newMessage);
-        form.append('userfile', this.uploadedFiles);
+        if (this.uploadedFiles.length > 0) {
+          form.append('userfile', this.uploadedFiles[0]); // 只发送第一个文件
+        }
         await this.$post(this.url, {groupid:this.group_id,botid:this.selectedBot.id}, form, 'data');
         console.log(this.data)
         // 解析 JSON 数据
@@ -171,6 +173,7 @@ export default {
         console.log(questions)
         this.addMessageAssistant(botText, null, questions);
         this.newMessage = "";
+        this.uploadedFiles=[];
         if (this.data.msg){
           alert(this.data.msg)
         }
@@ -230,16 +233,16 @@ export default {
       const file = files[i];
       const fileType = file.type;
       this.uploadedFiles.push(file);
-      // 判断文件类型
-      if (fileType.startsWith('audio/')) {
-        console.log('上传的是音频文件:', file.name);
-      } else if (fileType === 'application/pdf') {
-        console.log('上传的是PDF文件:', file.name);
-      } else if (fileType.startsWith('application/vnd.ms-excel') || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
-        console.log('上传的是Excel文件:', file.name);
-      } else {
-        console.log('上传的是其他类型的文件:', file.name);
-      }
+      // // 判断文件类型
+      // if (fileType.startsWith('audio/')) {
+      //   console.log('上传的是音频文件:', file.name);
+      // } else if (fileType === 'application/pdf') {
+      //   console.log('上传的是PDF文件:', file.name);
+      // } else if (fileType.startsWith('application/vnd.ms-excel') || fileType === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet') {
+      //   console.log('上传的是Excel文件:', file.name);
+      // } else {
+      //   console.log('上传的是其他类型的文件:', file.name);
+      // }
     }
   }
   event.target.value = ''; // 清空输入框，以允许上传相同文件

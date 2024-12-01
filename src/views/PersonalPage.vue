@@ -82,10 +82,10 @@
         <!-- 用例选择 -->
         <el-form-item label="您希望它可以用于：" required>
           <el-select v-model="form.useCase" placeholder="请选择">
-            <el-option label="语音识别" value="transcription"></el-option>
+            <el-option label="生成文字" value="transcription"></el-option>
             <el-option label="生成图片" value="image-generation"></el-option>
-            <el-option label="图片识别" value="image-recognition"></el-option>
-            <el-option label="文本生成" value="image-recognition"></el-option>
+            <el-option label="数学推理" value="image-generation"></el-option>
+            <el-option label="翻译" value="image-generation"></el-option>
           </el-select>
         </el-form-item>
 
@@ -491,11 +491,8 @@ export default {
           `您选择了: ${this.form.useCase}，机器人名称: ${this.form.robotName}，描述: ${this.form.robotDescription}`
       );
       let typeid = 0;
-      if(this.form.useCase === '语音识别'){
-        typeid = 2;
-      }else if (this.form.useCase === '图片识别'){
-        typeid = 1;
-      }else if (this.form.useCase === '生成图片'){
+
+      if (this.form.useCase === '生成图片'){
         typeid = 3;
       }
       const form = new FormData();
