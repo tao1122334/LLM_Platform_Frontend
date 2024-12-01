@@ -69,6 +69,7 @@ export default {
           views: item.visit_count || 0, // 替换为 visit_count
           likes: item.total_likes || 0, // 替换为 total_likes
           comments: item.collection_count || 0, // 替换为 collection_count
+          month: item.mounth_rating || 0,
           image: item.bot_avatar || "", // 替换为 bot_avatar
           author: {
             id: item.creator?.id || 0, // 如果 creator 不存在，设置默认值
@@ -222,6 +223,9 @@ export default {
             </span>
             <span style="font-size: 14px; color: #999;">
               {{ "评分 "+bot.likes }}
+            </span>
+            <span style="font-size: 14px; color: #999;">
+              {{ "本月评分 "+bot.month }}
             </span>
             <span style="font-size: 14px; color: #999;">
               {{ "评论 "+bot.comments }}
