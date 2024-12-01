@@ -60,9 +60,7 @@
       <h2> Bot 分析</h2>
       <div style="display: flex; height: 100%; overflow: hidden;color: #121010;  justify-content: center;" >
         <div class="function-navigation" style=" margin-top: 40px; justify-content: center;">
-          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">botId: {{bot.id}}</h3>
-          </div>
+
           <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
             <h3 class="section-title">title: {{bot.title}}</h3>
           </div>
@@ -73,7 +71,13 @@
             <h3 class="section-title">usage_limit: {{bot.usage_limit}}</h3>
           </div>
           <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">is_default: {{bot.is_default}}</h3>
+            <h3 class="section-title">bot use count: {{bot.use_count}}</h3>
+          </div>
+          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+            <h3 class="section-title">collect count: {{bot.collect_count}}</h3>
+          </div>
+          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+            <h3 class="section-title">bot like: {{bot.like_count}}</h3>
           </div>
 
         </div>
@@ -208,6 +212,9 @@ export default {
           usage_limit: message.usage_limit,
           is_default: message.is_default,
           avatar: message.bot_avatar_url,
+          use_count: message.usageCount,
+          collect_count: message.collection_count,
+          like_count: message.likes,
           // releaseDate: message.release_date,
           // favorites: message.favorites,
           // likes: message.likes,
