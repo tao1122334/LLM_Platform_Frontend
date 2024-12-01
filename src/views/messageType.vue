@@ -60,11 +60,9 @@ export default {
     renderMarkdown(text) {
       try {
         // 使用 marked 解析 Markdown 文本
-        this.$emit('typing-finished', this.id);
         return marked(text);
       } catch (error) {
         console.error('Markdown 渲染失败:', error);
-        this.$emit('typing-finished', this.id);
         return text; // 如果解析失败，返回原始文本
       }
 
