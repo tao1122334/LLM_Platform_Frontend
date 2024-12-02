@@ -486,7 +486,11 @@ export default {
       let typeid = 0;
 
       if (this.form.useCase === '生成图片'){
-        typeid = 3;
+        typeid = 1;
+      }else if (this.form.useCase === '翻译'){
+        typeid = 4;
+      }else if (this.form.useCase === '数学推理'){
+        typeid = 5;
       }
       const form = new FormData();
       form.append('typeid', typeid);
