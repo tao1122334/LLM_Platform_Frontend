@@ -66,36 +66,42 @@
     </div>
 
     <div v-show="activeTab === 'edit'" class="edit-section">
-      <div style="display: flex; flex-direction: column; height: 100%; overflow: auto;">
-        <header
-            style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd;"
-        >
-          <div style="font-size: 28px;text-align: center; font-weight: bold;">{{bot.title}}</div>
+      <div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
+
+        <!-- Header 部分 -->
+        <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd;">
+          <div style="font-size: 24px; text-align: center; font-weight: bold;">{{ bot.title }}</div>
           <div>
             <button style="background-color: transparent; border: none; cursor: pointer;">隐私设置</button>
           </div>
         </header>
-        <div style="display: flex; flex: 1; padding: 20px; width: 110%">
-          <div class="function-navigation" style="flex: 0 0 250px; padding-right: 20px; overflow-y: auto; font-size: 13px;">
-            <div class="content" style=" margin-top: 40px; text-align: center;">
+
+        <!-- 主体内容部分 -->
+        <div style="display: flex; flex: 1; width: 100%; padding: 20px; box-sizing: border-box;">
+
+          <!-- 左侧：功能导航区域 -->
+          <div class="function-navigation" style="flex: 0 0 200px; padding-right: 20px; font-size: 14px; background-color: #f7f7f7;">
+            <div class="content" style="margin-top: 40px; text-align: center;">
               <h3 class="section-title">输入与回复逻辑编辑</h3>
               <p class="section-description">
                 使用自然语言编写 Bot 的外观设置、功能和工作流程。
               </p>
             </div>
-            <div class="function-navigation" style=" margin-top: 40px;">
+
+            <!-- 插件区域 -->
+            <div class="function-navigation" style="margin-top: 40px;">
               <div class="plugins-section">
-                <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+                <div class="content" style="margin-top: 40px; text-align: center;">
                   <h4>插件</h4>
                   <div class="plugin-item">
                     <span class="plugin-name">必应搜索 / BingWebSearch</span>
                   </div>
                 </div>
-                <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+                <div class="content" style="margin-top: 40px; text-align: center;">
                   <h4 class="section-title">工作流</h4>
                   <p>图像流、触发器等功能配置。</p>
                 </div>
-                <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+                <div class="content" style="margin-top: 40px; text-align: center;">
                   <h4 class="section-title">知识</h4>
                   <ul class="knowledge-list">
                     <li>文本</li>
@@ -106,14 +112,18 @@
               </div>
             </div>
           </div>
-          <div style="flex: 1; display: flex; flex-direction: column; overflow-y: auto;">
+
+          <!-- 右侧：展示和调试区域 -->
+          <div style="flex: 1; display: flex; flex-direction: column; padding-left: 20px; overflow: hidden; background-color: #fff; ">
             <div style="flex-grow: 1;">
-              <Home/>
+              <!-- Home 组件展示 -->
+              <Home />
             </div>
           </div>
         </div>
       </div>
     </div>
+
   </div>
 </template>
 
