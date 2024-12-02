@@ -119,9 +119,10 @@ export default {
     <!-- 展示部分：占据剩余全部高度，并且内部可滚动 -->
     <div style="flex-grow: 1; overflow-y: auto; padding: 20px; background-color: #f8f8f8;">
       <!-- 灰色占位段位符 -->
-      <div style="width: 100%; height: 150px; background-color: #e0e0e0; margin-bottom: 20px; display: flex; justify-content: space-around; align-items: center;">
-        <p style="margin: 0; font-size: 40px; color: #333;">广告位招租 </p>
-      </div>
+    <div style="width: 100%; height: 200px; background-color: #e0e0e0; margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
+        <img src="../assets/img.png" alt="hello" style="width: 100%; height: 100%; object-fit: cover;" />
+    </div>
+
       <!-- 推荐栏和选择栏（缩小高度，布局保持紧凑） -->
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <button class="recommend" @click="recommend">

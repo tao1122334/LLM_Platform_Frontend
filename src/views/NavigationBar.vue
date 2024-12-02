@@ -253,60 +253,54 @@ export default {
 </script>
 
 <template>
-  <div style="display: flex; flex-direction: column; width: 15vw; height: 95vh">
-
-    <div style="font-size: 1.5em; margin-bottom: 1em">
-      LLM Platform
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 1em">
-      <div @click="this.$router.push({path: '/'});" style="cursor: pointer">
-        主页
-      </div>
-      <div @click="this.$router.push({path: '/PersonalPage'});" style="cursor: pointer">
-        个人空间
-      </div>
-      <div @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer">
-        Bot 商店
-      </div>
-      <div @click="handleRecharge" style="cursor: pointer">
-        充值
-      </div>
-      <div @click="goToLogin" style="cursor: pointer">
-        登录
-      </div>
-      <div @click="getUserTable" style="cursor: pointer">
-        导出用户
-      </div>
-      <div @click="getBotTable" style="cursor: pointer">
-        导出Bot
-      </div>
-      <div @click="getChartTable" style="cursor: pointer">
-        导出充值记录
-      </div>
-      <div @click="getBotCommentTable" style="cursor: pointer">
-        导出bot评论
-      </div>
-      <div @click="SendTooken" style="cursor: pointer">
-        发放奖励
-      </div>
-    </div>
-
-    <div>
-      <!-- 显示用户信息 -->
-      <div v-if="userData" style="margin-top: auto;">
-        <div>
-          <img :src="userData.avatar" alt="用户头像" style="width: 50px; height: 50px;"/>
-        </div>
-        <div>
-          用户名: {{ userData.username }}
-        </div>
-      </div>
-    </div>
+<div style="display: flex; flex-direction: column; width: 15vw; height: 95vh; background-color: #f4f6f9; padding: 1em; border-radius: 8px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);">
+  <div style="font-size: 1.5em; margin-bottom: 2em; color: #1e90ff; font-weight: bold; text-align: center;">
+    LLM Platform
   </div>
+
+  <div style="display: flex; flex-direction: column; gap: 1.5em; font-family: 'Arial', sans-serif;">
+    <a @click="this.$router.push({path: '/'});" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      主页
+    </a>
+    <a @click="this.$router.push({path: '/PersonalPage'});" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      个人空间
+    </a>
+    <a @click="this.$router.push({path: '/BotShop'});" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      Bot 商店
+    </a>
+    <a @click="handleRecharge" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      充值
+    </a>
+    <a @click="goToLogin" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      登录
+    </a>
+    <a @click="getUserTable" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      导出用户
+    </a>
+    <a @click="getBotTable" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      导出Bot
+    </a>
+    <a @click="getChartTable" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      导出充值记录
+    </a>
+    <a @click="getBotCommentTable" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      导出bot评论
+    </a>
+    <a @click="SendTooken" style="cursor: pointer; color: #1e90ff; padding: 0.5em; border-radius: 4px; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center;">
+      发放奖励
+    </a>
+  </div>
+</div>
+
+
 
 </template>
 
 <style scoped>
-
+a:hover {
+  color: #fff;                /* 文字变白 */
+  font-weight: bold;          /* 加粗文字 */
+  transform: scale(1.05);     /* 轻微放大按钮 */
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15); /* 阴影效果 */
+}
 </style>
