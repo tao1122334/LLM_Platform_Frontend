@@ -417,7 +417,12 @@ export default {
     // },
     typeTextFinished(message) {
       console.log("Typing finished:", message);
-      this.messages[message].rendered = "finish";
+      // 停顿几秒钟（例如 2秒）
+      setTimeout(() => {
+        this.messages[message].rendered = "finish";
+        console.log("Message rendered:", this.messages[message]);
+      }, Math.floor(Math.random()*1001)+2000); // 延迟2000ms，即2秒
+      // this.messages[message].rendered = "finish";
     },
   },
   async mounted() {
