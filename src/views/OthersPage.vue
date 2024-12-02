@@ -85,6 +85,7 @@ export default {
         console.log("otherPage")
         console.log(this.userData)
         this.userSpaceName = this.userData.user_dict.username;
+        this.userHandle = '@'+this.userData.user_dict.username;
         this.userDescription = this.userData.user_dict.description || "这个用户很懒，什么都没写";
 
       } catch (error) {
