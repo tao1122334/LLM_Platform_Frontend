@@ -78,10 +78,17 @@
                     <span class="plugin-name">必应搜索 / BingWebSearch</span>
                   </div>
                 </div>
-                <div class="content" style="margin-top: 40px; text-align: center;">
+                <div class="content" style="margin-top: 40px; text-align: center;" @click="triggerFileInput">
                   <h4 class="section-title">知识</h4>
                   <p>上传知识库</p>
                 </div>
+                <input
+                  type="file"
+                  ref="fileInput"
+                  accept=".txt"
+                  style="display: none"
+                  @change="handleFileChange"
+                />
                 <div class="content" style="margin-top: 40px; text-align: center;">
                   <h4 class="section-title">预训练</h4>
                   <p>让模型更加符合您的使用</p>
@@ -109,6 +116,7 @@
 import Home from "@/views/Home.vue";
 import Community from "@/views/Community.vue";
 import AvatarComponent from "@/views/AvatarComponent.vue";
+import axios from "axios";
 
 export default {
   name: 'BotManager',
@@ -133,6 +141,45 @@ export default {
     };
   },
   methods: {
+    // 点击“上传知识库”时触发文件输入框点击事件
+    triggerFileInput() {
+      // 触发文件输入框的点击事件
+      this.$refs.fileInput.click();
+    },
+
+    // 文件选择后触发的事件
+    handleFileChange(event) {
+      const file = event.target.files[0];
+      if (file) {
+        // 处理文件上传
+        this.uploadFile(file);
+      }
+    },
+
+    // 上传文件的方法
+    async uploadFile(file) {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("bot_id",this.$route.query.bot_id)
+      try {
+        const response = await axios.post('/api/addknowledge/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+
+        // 处理上传后的响应
+        console.log(response.data);
+        if (response.data.success) {
+          alert('上传成功！');
+        } else {
+          alert('上传失败！');
+        }
+      } catch (error) {
+        console.error(error);
+        alert('上传失败，请稍后重试！');
+      }
+    },
     switchTab(tab) {
       this.activeTab = tab;
       this.$nextTick(() => {
