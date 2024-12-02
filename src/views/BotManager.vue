@@ -84,7 +84,7 @@
                 </div>
                 <div class="content" style="margin-top: 40px; text-align: center;">
                   <h4 class="section-title">预训练</h4>
-                  <p>上传知识库</p>
+                  <p>让模型更加符合您的使用</p>
                 </div>
               </div>
             </div>
