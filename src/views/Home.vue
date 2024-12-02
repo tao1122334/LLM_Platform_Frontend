@@ -9,9 +9,36 @@ import { marked } from 'marked'; // 导入 marked
 import JSON5 from "json5";
 import AvatarComponent from "@/views/AvatarComponent.vue";
 import messageType from "@/views/messageType.vue";
-
+import { ref } from 'vue';
+import { ElMessageBox, ElMessage } from 'element-plus';
 export default {
   name: 'Home',
+    setup() {
+    const dialogVisible = ref(false);  // 控制弹出框显示/隐藏
+    const prompt = ref('');  // 用于存储输入的prompt值
+
+    // 打开弹出框，使用 ElMessageBox.prompt
+    const openPromptDialog = () => {
+      ElMessageBox.prompt('请输入您的 Prompt:', '设置Prompt', {
+        confirmButtonText: '保存',
+        cancelButtonText: '取消',
+        inputPlaceholder: '请输入提示信息',
+        inputValue: prompt.value,  // 预设值
+      })
+        .then(({ value }) => {
+          prompt.value = value;  // 更新用户输入的 prompt
+          ElMessage.success(`保存的 prompt: ${prompt.value}`);  // 提示保存成功
+        })
+        .catch(() => {
+          ElMessage.info('取消设置 prompt');  // 如果用户取消，则显示提示信息
+        });
+    };
+
+    return {
+      openPromptDialog,
+      prompt,
+    };
+  },
   components: {
     messageType,
     AvatarComponent,
@@ -156,7 +183,8 @@ export default {
         this.url = 'chat/'+ this.selectedBot.id + '/' + this.group_id + '/';
         const form = new FormData();
         form.append('chat_method', this.selectedBot.name);
-        form.append('chat_content', this.newMessage);
+        form.append('chat_content', this.newMessage+this.prompt);
+        console.log(this.newMessage+'\n'+this.prompt)
         if (this.uploadedFiles.length > 0) {
           form.append('userfile', this.uploadedFiles[0]); // 只发送第一个文件
         }
@@ -271,8 +299,7 @@ export default {
       this.hideMenu();
     },
     addToDesktop() {
-      alert("已添加到桌面（模拟功能）");
-      console.log("已添加到桌面");
+
       this.hideMenu();
     },
     manageAuthorization() {
@@ -680,9 +707,9 @@ export default {
             <span class="menu-icon">🗑️</span>
             <span class="menu-text">删除对话记录</span>
           </li>
-          <li @click="addToDesktop">
+          <li @click="openPromptDialog">
             <span class="menu-icon">➕</span>
-            <span class="menu-text">添加到桌面</span>
+            <span class="menu-text">设置prompt</span>
           </li>
           <li @click="manageAuthorization">
             <span class="menu-icon">⚙️</span>
