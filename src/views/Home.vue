@@ -441,6 +441,21 @@ export default {
       this.selectedBot = this.data.bot_dict;
     }else {
       await this.getMessageList();
+      await this.$get(
+            'get_home_msg/',
+            { },
+            'data',
+            '',
+            ''
+        );
+      console.log(this.data)
+        // 提取 bot_text
+        const botJson = this.data.ans;
+        const botText = JSON5.parse(botJson).response;
+        const questions = JSON5.parse(botJson).heuristic_questions;
+        console.log(botText)
+        console.log(questions)
+        this.addMessageAssistant(botText, null, questions);
     }
       await this.$get('botlist/', {}, 'data');
       this.bots = this.data.bots;
