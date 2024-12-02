@@ -845,7 +845,7 @@ export default {
 }
 
 input:checked + .slider {
-  background-color: #4CAF50;
+  background-color: #007bff;
 }
 
 input:checked + .slider:before {

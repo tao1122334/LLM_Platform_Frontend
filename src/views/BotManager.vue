@@ -11,66 +11,47 @@
         <AvatarComponent
             :size="50"
             :name="bot.title"
+            :bgColor="'#6eb2ea'"
             shape="square"
         />
-        <span style="font-size: 18px; color: #666; font-weight: bold; gap: 15px;">{{author.name}}</span>
-        <span style="font-size: 14px; color: #666; font-weight: bold; gap: 15px;" class="button" @click="goBack()">个人空间</span>
-        <span style="font-size: 14px; color: #666; font-weight: bold; gap: 15px;" class="button">草稿</span>
-        <span style="font-size: 18px; color: #666; font-weight: bold; gap: 15px;">自动保存 | 22:58:35</span>
+        <span style="font-size: 18px; color: #6eb2ea; font-weight: bold; gap: 15px;">{{author.name}}</span>
+        <span style="font-size: 14px; color: #fdfdfd; font-weight: bold; gap: 15px;" class="button" @click="goBack()">个人空间</span>
+        <span style="font-size: 18px; color: #6eb2ea; font-weight: bold; gap: 15px;">自动保存 | 22:58:35</span>
 
         <!-- 中间部分：导航选项 -->
         <span @click="switchTab('edit')" :style="getOptionStyle('edit')">编辑</span>
         <span @click="switchTab('analysis')" :style="getOptionStyle('analysis')">分析</span>
-
-        <!-- 右侧部分：发布按钮 -->
-        <div style="display: flex; align-items: center; gap: 20px;">
-          <button
-              style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s;"
-              @mouseover="hover = true"
-              @mouseleave="hover = false"
-              :style="{ backgroundColor: hover ? '#0056b3' : '#007bff' }"
-          >
-            发布
-          </button>
-        </div>
       </div>
     </header>
 
     <!-- 主内容区域 -->
 
-    <div v-show="activeTab === 'analysis'" class="analysis-section">
-      <h2> Bot 分析</h2>
-      <div style="display: flex; height: 100%; color: #ffffff; justify-content: center; overflow-y: auto" >
-        <div class="function-navigation" style=" margin-top: 40px; justify-content: center;">
-          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">title: {{bot.title}}</h3>
+<div v-show="activeTab === 'analysis'" class="analysis-section">
+  <div style="max-width: 50%">
+    <el-row style="justify-content: center; gap: 20px;">
+      <el-col :span="8" v-for="(value, key) in bot" :key="key">
+        <el-card shadow="hover">
+          <div class="content" style="text-align: center;">
+            <h3 style="font-size: 16px; font-weight: bold;">{{ formatLabel(key) }}:</h3>
+            <el-tag :type="getTagType(key)" style="font-size: 16px; font-weight: normal;">
+              {{ value }}
+            </el-tag>
           </div>
-          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">price_per_use: {{bot.price_per_use}}</h3>
-          </div>
-          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">usage_limit: {{bot.usage_limit}}</h3>
-          </div>
-          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">bot use count: {{bot.use_count}}</h3>
-          </div>
-          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">collect count: {{bot.collect_count}}</h3>
-          </div>
-          <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-            <h3 class="section-title">bot like: {{bot.like_count}}</h3>
-          </div>
-        </div>
-      </div>
-      <div style="overflow-y: auto"><Community/></div>
+        </el-card>
+      </el-col>
+    </el-row>
     </div>
+    <div style="overflow-y: auto; margin-top: 20px; width: 60%">
+      <Community/>
+    </div>
+  </div>
 
     <div v-show="activeTab === 'edit'" class="edit-section">
       <div style="display: flex; flex-direction: column; height: 100%; width: 100%;">
 
         <!-- Header 部分 -->
         <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd;">
-          <div style="font-size: 24px; text-align: center; font-weight: bold;">{{ bot.title }}</div>
+          <div style="font-size: 24px; text-align: center; font-weight: bold; color: #007bff">{{ bot.title }}</div>
           <div>
             <button style="background-color: transparent; border: none; cursor: pointer;">隐私设置</button>
           </div>
@@ -80,7 +61,7 @@
         <div style="display: flex; flex: 1; width: 100%; padding: 20px; box-sizing: border-box;">
 
           <!-- 左侧：功能导航区域 -->
-          <div class="function-navigation" style="flex: 0 0 200px; padding-right: 20px; font-size: 14px; background-color: #f7f7f7;">
+          <div class="function-navigation" style="flex: 0 0 200px; padding-right: 20px; font-size: 14px; ">
             <div class="content" style="margin-top: 40px; text-align: center;">
               <h3 class="section-title">输入与回复逻辑编辑</h3>
               <p class="section-description">
@@ -92,22 +73,18 @@
             <div class="function-navigation" style="margin-top: 40px;">
               <div class="plugins-section">
                 <div class="content" style="margin-top: 40px; text-align: center;">
-                  <h4>插件</h4>
+                  <h4 class="section-title">插件</h4>
                   <div class="plugin-item">
                     <span class="plugin-name">必应搜索 / BingWebSearch</span>
                   </div>
                 </div>
                 <div class="content" style="margin-top: 40px; text-align: center;">
-                  <h4 class="section-title">工作流</h4>
-                  <p>图像流、触发器等功能配置。</p>
+                  <h4 class="section-title">知识</h4>
+                  <p>上传知识库</p>
                 </div>
                 <div class="content" style="margin-top: 40px; text-align: center;">
-                  <h4 class="section-title">知识</h4>
-                  <ul class="knowledge-list">
-                    <li>文本</li>
-                    <li>表格</li>
-                    <li>照片</li>
-                  </ul>
+                  <h4 class="section-title">预训练</h4>
+                  <p>上传知识库</p>
                 </div>
               </div>
             </div>
@@ -166,13 +143,33 @@ export default {
       return {
         cursor: 'pointer',
         fontSize: '16px',
-        color: this.activeTab === tab ? '#235125' : '#555',
+        color: this.activeTab === tab ? '#407894' : '#555',
         fontWeight: this.activeTab === tab ? 'bold' : 'normal',
         transition: 'color 0.3s',
       };
     },
     goBack() {
       this.$router.push('/PersonalPage');
+    },
+    formatLabel(key) {
+      const labels = {
+        title: 'Bot 名',
+        price_per_use: '单次使用耗额',
+        usage_limit: '当天使用限制',
+        use_count: '已被使用次数',
+        average_mouth_rating: '当月评分',
+        average_rating: '总评分',
+        ratings_count: '已获评论数'
+      };
+      return labels[key] || key;
+    },
+    getTagType(key) {
+      if (key === 'average_mouth_rating' || key === 'average_rating') {
+        return 'success';
+      } else if (key === 'use_count') {
+        return 'info';
+      }
+      return 'primary';
     },
     async getBotMsg_() {
       try {
@@ -204,10 +201,11 @@ export default {
           price_per_use: message.price_per_use,
           usage_limit: message.usage_limit,
           is_default: message.is_default,
-          avatar: message.bot_avatar_url,
           use_count: message.usageCount,
-          collect_count: message.collection_count,
           like_count: message.likes,
+          average_mouth_rating: message.mounth_rating,
+          average_rating:message.total_likes,
+          ratings_count:message.collection_count
           // releaseDate: message.release_date,
           // favorites: message.favorites,
           // likes: message.likes,
@@ -230,6 +228,20 @@ export default {
 </script>
 
 <style scoped>
+
+.analysis-section h2 {
+  font-size: 24px;
+  text-align: center;
+  color: #867777;
+  margin-bottom: 30px;
+}
+
+.section-title {
+  color: #007bff;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
 :root {
   --main-bg-color: #ffffff; /* 白色背景 */
   --main-text-color: #333333; /* 更深的文本颜色 */
@@ -240,7 +252,7 @@ export default {
 }
 
 .button {
-  background-color: #d1d8df; /* 初始背景颜色 */
+  background-color: #5b9bdc; /* 初始背景颜色 */
   color: #090707; /* 文字颜色 */
   padding: 10px 20px; /* 内边距 */
   border: none; /* 边框 */

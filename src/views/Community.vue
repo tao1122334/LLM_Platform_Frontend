@@ -6,12 +6,12 @@
       <div>
         <button
             @click="refreshPage"
-            style="padding: 4px 8px; background-color: #42b983; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+            style="padding: 4px 8px; background-color: #6eb2ea; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
           刷新
         </button>
         <button
             @click="openPostModal"
-            style="padding: 4px 8px; background-color: #42b983; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
+            style="padding: 4px 8px; background-color: #6eb2ea; color: white; border: none; border-radius: 4px; cursor: pointer; margin-left: 10px;">
           发帖
         </button>
       </div>
@@ -32,7 +32,8 @@
 <!--              @click="goToUserSpace(comment.username)">-->
           <AvatarComponent :size="40"
                            :name="comment.username"
-                           @click="goToUserSpace(comment.username)"/>
+                           @click="goToUserSpace(comment.username)"
+          :bgColor="'#6eb2ea'"/>
           <span style="font-weight: bold;cursor: pointer;"
                 @click="goToUserSpace(comment.username)">
             @{{ comment.username }}
