@@ -82,10 +82,10 @@
         <!-- 用例选择 -->
         <el-form-item label="您希望它可以用于：" required>
           <el-select v-model="form.useCase" placeholder="请选择">
-            <el-option label="生成文字" value="transcription"></el-option>
-            <el-option label="生成图片" value="image-generation"></el-option>
-            <el-option label="数学推理" value="image-generation"></el-option>
-            <el-option label="翻译" value="image-generation"></el-option>
+            <el-option label="生成文字" value="生成文字"></el-option>
+            <el-option label="生成图片" value="生成图片"></el-option>
+            <el-option label="数学推理" value="数学推理"></el-option>
+            <el-option label="翻译" value="翻译"></el-option>
           </el-select>
         </el-form-item>
 
