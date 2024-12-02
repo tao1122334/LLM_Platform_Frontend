@@ -7,19 +7,19 @@
         <AvatarComponent
             :size="50"
             :image="userAvatar"
-            :name="userSpaceName"
+            :name="userName"
         />
         <div class="user-info" :style="userInfoStyles">
           <div class="user-basic-info" :style="userBasicInfoStyles">
-            <span :style="userNameStyles">{{ userSpaceName }}</span>
+            <span :style="userNameStyles">{{ userName }}</span>
             <span v-if="userHandle" :style="userHandleStyles">{{ userHandle }}</span>
           </div>
           <p v-if="userDescription" :style="userDescriptionStyles">{{ userDescription }}</p>
-          <div v-if="followingCount !== null && followerCount !== null && likeCount !== null" class="user-stats"
+          <div class="user-stats"
                :style="userStatsStyles">
             <span :style="statStyles">得分 {{ followingCount }}</span>
             <span :style="statStyles">排名 {{ followerCount }}</span>
-            <span :style="statStyles">获赞 {{ likeCount }}</span>
+            <span :style="statStyles">余额 {{ likeCount }}</span>
           </div>
         </div>
       </div>
@@ -45,11 +45,11 @@
         <div class="search-filter" :style="searchFilterStyles">
           <input type="text" v-model="searchQuery" :placeholder="searchPlaceholder" :style="searchInputStyles"/>
           <button @click="search" :style="searchButtonStyles">🔍搜索</button>
-          <select v-model="selectedFilter" :style="filterSelectStyles">
-            <option v-for="filter in filters" :key="filter.value" :value="filter.value">
-              {{ filter.label }}
-            </option>
-          </select>
+<!--          <select v-model="selectedFilter" :style="filterSelectStyles">-->
+<!--            <option v-for="filter in filters" :key="filter.value" :value="filter.value">-->
+<!--              {{ filter.label }}-->
+<!--            </option>-->
+<!--          </select>-->
         </div>
       </div>
     </div>
@@ -139,18 +139,7 @@ export default {
       type: String,
       default: ''
     },
-    followingCount: {
-      type: Number,
-      default: null
-    },
-    followerCount: {
-      type: Number,
-      default: null
-    },
-    likeCount: {
-      type: Number,
-      default: null
-    },
+
     followButtonText: {
       type: String,
       default: ''
@@ -456,6 +445,9 @@ export default {
   data() {
     return {
       botData: null,
+      followingCount:null,
+      followerCount:null,
+      likeCount:null,
       // 控制弹窗的显示与隐藏
       isModalVisible: false,
       // 表单数据
@@ -464,6 +456,7 @@ export default {
         robotName: '',
         robotDescription: '', // 新增的描述字段
       },
+      userName:'',
       id: 1,
       searchQuery: '',
       selectedFilter: 'all',
@@ -592,8 +585,19 @@ export default {
       this.$emit('view-robot');
     }
   },
-  mounted() {
-    this.get_bot_list();
+  async mounted() {
+    await this.get_bot_list();
+    try {
+        await this.$get('get_user_msg', {id:this.$route.query.creator_id}, 'userData',);
+      console.log(this.userData)
+      this.userName = this.userData.user_dict.username
+      this.followingCount = this.userData.user_given_rating
+      this.followerCount = this.userData.user_rating
+      this.likeCount = this.userData.user_dict.balance
+        //这里需要对传回来的个人信息结构进行分析,处理this.userData
+      } catch (error) {
+        console.error('Error fetching user data: ', error);
+      }
   }
 };
 </script>

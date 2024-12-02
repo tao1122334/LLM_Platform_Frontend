@@ -1,6 +1,7 @@
 <script>
-import { ElMessageBox, ElMessage } from "element-plus";
+import {ElMessageBox, ElMessage} from "element-plus";
 import axios from "axios";
+
 export default {
   data() {
     return {
@@ -20,84 +21,170 @@ export default {
         inputPattern: /^[1-9]\d*$/, // 限制只能输入正整数
         inputErrorMessage: "请输入有效的金额",
       })
-        .then(async ({ value }) => {
-      try {
-        // 构造请求体
-        const formData = new FormData();
-        formData.append("amount", value); // 添加充值金额
+          .then(async ({value}) => {
+            try {
+              // 构造请求体
+              const formData = new FormData();
+              formData.append("amount", value); // 添加充值金额
 
-        // 发送 POST 请求
-        const response = await this.$post("addbalance/", null,formData,'data');
-        console.log(this.data)
-        // // 根据后端返回的内容处理逻辑
-        if (this.data.success) {
-          // 支付成功后的处理
-          window.location.href = this.data.link; // 跳转到支付链接
-          ElMessage({
-            type: "success",
-            message: `充值链接已生成，请完成支付！金额：${value} 元`,
+              // 发送 POST 请求
+              const response = await this.$post("addbalance/", null, formData, 'data');
+              console.log(this.data)
+              // // 根据后端返回的内容处理逻辑
+              if (this.data.success) {
+                // 支付成功后的处理
+                window.location.href = this.data.link; // 跳转到支付链接
+                ElMessage({
+                  type: "success",
+                  message: `充值链接已生成，请完成支付！金额：${value} 元`,
+                });
+              } else {
+                // 支付失败的提示
+                ElMessage({
+                  type: "error",
+                  message: response.data.message || "充值失败，请稍后再试",
+                });
+              }
+            } catch (error) {
+              console.error(error);
+              ElMessage({
+                type: "error",
+                message: "充值失败，服务器异常",
+              });
+            }
+          })
+          .catch(() => {
+            // 用户取消时的逻辑
+            ElMessage({
+              type: "info",
+              message: "充值已取消",
+            });
           });
-        } else {
-          // 支付失败的提示
-          ElMessage({
-            type: "error",
-            message: response.data.message || "充值失败，请稍后再试",
-          });
-        }
-      } catch (error) {
-        console.error(error);
-        ElMessage({
-          type: "error",
-          message: "充值失败，服务器异常",
-        });
-      }
-    })
-    .catch(() => {
-      // 用户取消时的逻辑
-      ElMessage({
-        type: "info",
-        message: "充值已取消",
-      });
-    });
-},
+    },
 
     // 跳转到登录页面
     goToLogin() {
-      this.$router.push({ path: "/login" });
+      this.$router.push({path: "/login"});
     },
+    async SendTooken() {
+      try {
+        axios.get('api/SendTooken/')
+            .then(response => {
+              alert(response.data.msg)
+              console.log(response.data); // 处理响应数据
+            })
+            .catch(error => {
+              alert(error)
+              console.error('Error:', error);
+            });
+      } catch (error) {
+        console.error('获取机器人表失败:', error);
+      }
+    },
+    async getChartTable() {
+      try {
+        axios.get('api/admin_chart/', {
+          responseType: 'blob', // 关键：指定响应类型为 blob
+        })
+            .then((response) => {
+              // 创建一个 Blob 对象
+              const blob = new Blob([response.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              });
 
+              // 创建一个下载链接
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+
+              // 设置下载文件名
+              link.setAttribute('download', 'OrderTable.xlsx');
+
+              // 触发下载
+              document.body.appendChild(link);
+              link.click();
+
+              // 清理链接
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+            })
+            .catch((error) => {
+              alert(error);
+              console.error('Error downloading the file:', error);
+            });
+      } catch (error) {
+
+        console.error('获取机器人表失败:', error);
+      }
+    },
+    async getBotCommentTable() {
+      try {
+        axios.get('api/export_bot_comments/', {
+          responseType: 'blob', // 关键：指定响应类型为 blob
+        })
+            .then((response) => {
+              // 创建一个 Blob 对象
+              const blob = new Blob([response.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              });
+
+              // 创建一个下载链接
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+
+              // 设置下载文件名
+              link.setAttribute('download', 'export_bot_comments.xlsx');
+
+              // 触发下载
+              document.body.appendChild(link);
+              link.click();
+
+              // 清理链接
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+            })
+            .catch((error) => {
+              alert(error);
+              console.error('Error downloading the file:', error);
+            });
+      } catch (error) {
+        console.error('获取机器人表失败:', error);
+      }
+    },
     // TODO: url:admin_bot  接收返回的文件，并且直接让用户下载 已完成
     // 发送请求获取机器人表，并让用户下载返回的文件
     async getBotTable() {
       try {
         axios.get('api/admin_bot/', {
-        responseType: 'blob', // 关键：指定响应类型为 blob
-      })
-      .then((response) => {
-        // 创建一个 Blob 对象
-        const blob = new Blob([response.data], {
-          type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        });
+          responseType: 'blob', // 关键：指定响应类型为 blob
+        })
+            .then((response) => {
+              // 创建一个 Blob 对象
+              const blob = new Blob([response.data], {
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+              });
 
-        // 创建一个下载链接
-        const url = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
+              // 创建一个下载链接
+              const url = window.URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
 
-        // 设置下载文件名
-        link.setAttribute('download', 'bots_dashboard.xlsx');
+              // 设置下载文件名
+              link.setAttribute('download', 'bots_dashboard.xlsx');
 
-        // 触发下载
-        document.body.appendChild(link);
-        link.click();
+              // 触发下载
+              document.body.appendChild(link);
+              link.click();
 
-        // 清理链接
-        document.body.removeChild(link);
-        window.URL.revokeObjectURL(url);
-})
-.catch((error) => {
-  console.error('Error downloading the file:', error);
-});
+              // 清理链接
+              document.body.removeChild(link);
+              window.URL.revokeObjectURL(url);
+            })
+            .catch((error) => {
+              alert(error);
+              console.error('Error downloading the file:', error);
+            });
       } catch (error) {
         console.error('获取机器人表失败:', error);
       }
@@ -134,6 +221,7 @@ export default {
 
         console.log('File downloaded successfully!');
       } catch (error) {
+        alert(error);
         console.error('Error downloading the file:', error);
       }
     },
@@ -141,7 +229,7 @@ export default {
     downloadFile(data, filename) {
       try {
         // 处理文件下载
-        const blob = new Blob([data], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const blob = new Blob([data], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -185,7 +273,7 @@ export default {
         充值
       </div>
       <div @click="goToLogin" style="cursor: pointer">
-      登录
+        登录
       </div>
       <div @click="getUserTable" style="cursor: pointer">
         导出用户
@@ -193,13 +281,13 @@ export default {
       <div @click="getBotTable" style="cursor: pointer">
         导出Bot
       </div>
-      <div @click="getBotTable" style="cursor: pointer">
+      <div @click="getChartTable" style="cursor: pointer">
         导出充值记录
       </div>
-      <div @click="getBotTable" style="cursor: pointer">
+      <div @click="getBotCommentTable" style="cursor: pointer">
         导出bot评论
       </div>
-      <div @click="getBotTable" style="cursor: pointer">
+      <div @click="SendTooken" style="cursor: pointer">
         发放奖励
       </div>
     </div>
@@ -208,7 +296,7 @@ export default {
       <!-- 显示用户信息 -->
       <div v-if="userData" style="margin-top: auto;">
         <div>
-          <img :src="userData.avatar" alt="用户头像" style="width: 50px; height: 50px;" />
+          <img :src="userData.avatar" alt="用户头像" style="width: 50px; height: 50px;"/>
         </div>
         <div>
           用户名: {{ userData.username }}
