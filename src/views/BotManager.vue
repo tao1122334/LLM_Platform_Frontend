@@ -1,56 +1,38 @@
 <template>
   <div
       class="bot-manager"
-      style="width: 100%; max-width: 2000px; margin: 0 auto; height: 100%; display: flex; flex-direction: column;"
+      style="width: 100%; max-width: 2000px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; background-color: white;"
   >
     <header
-        style="display: flex; justify-content: space-between; align-items: center; background-color: #f5f5f5; padding: 10px 20px; border-bottom: 1px solid #ddd;"
+        style="display: flex; justify-content: space-between; align-items: center; background-color: #ffffff; padding: 10px 20px; border-bottom: 1px solid #ddd;"
     >
       <!-- 左侧部分 -->
-      <div style="display: flex; align-items: center; gap: 10px;opacity: 0.8">
+      <div style="display: flex; align-items: center; gap: 10px; opacity: 0.8;">
         <AvatarComponent
             :size="50"
             :name="bot.title"
             shape="square"
         />
-        <span style="font-size: 18px; color: #666;font-weight: bold ;gap: 15px">{{author.name}}</span>
-        <span style="font-size: 14px; color: #666;font-weight: bold; gap: 15px" class="button" @click="goBack()">个人空间</span>
-        <span style="font-size: 14px; color: #666;font-weight: bold;gap: 15px" class="button">草稿</span>
-        <span style="font-size: 18px; color: #666;font-weight: bold;gap: 15px" >自动保存 | 22:58:35</span>
+        <span style="font-size: 18px; color: #666; font-weight: bold; gap: 15px;">{{author.name}}</span>
+        <span style="font-size: 14px; color: #666; font-weight: bold; gap: 15px;" class="button" @click="goBack()">个人空间</span>
+        <span style="font-size: 14px; color: #666; font-weight: bold; gap: 15px;" class="button">草稿</span>
+        <span style="font-size: 18px; color: #666; font-weight: bold; gap: 15px;">自动保存 | 22:58:35</span>
 
         <!-- 中间部分：导航选项 -->
-<!--      <div style="display: flow; gap: 20px;" class="button">-->
-<!--      <span-->
-<!--          @click="switchTab('edit')"-->
-<!--          :style="getOptionStyle('edit')"-->
-<!--      >-->
-<!--        编辑-->
-<!--      </span>-->
-
-<!--      </div>-->
-<!--      <div style="display: flow; gap: 20px; color:#5e010c" class="button">-->
-<!--        <span-->
-<!--            @click="switchTab('analysis')"-->
-<!--            :style="getOptionStyle('analysis')"-->
-<!--        >-->
-<!--        分析-->
-<!--      </span>-->
-<!--      </div>-->
         <span @click="switchTab('edit')" :style="getOptionStyle('edit')">编辑</span>
         <span @click="switchTab('analysis')" :style="getOptionStyle('analysis')">分析</span>
+
         <!-- 右侧部分：发布按钮 -->
-      <div style="display: flex; align-items: center;gap: 20px;">
-        <button
-            style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s;"
-            @mouseover="hover = true"
-            @mouseleave="hover = false"
-            :style="{ backgroundColor: hover ? '#0056b3' : '#007bff' }"
-        >
-          发布
-        </button>
-      </div>
-
-
+        <div style="display: flex; align-items: center; gap: 20px;">
+          <button
+              style="background-color: #007bff; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 16px; transition: background-color 0.3s;"
+              @mouseover="hover = true"
+              @mouseleave="hover = false"
+              :style="{ backgroundColor: hover ? '#0056b3' : '#007bff' }"
+          >
+            发布
+          </button>
+        </div>
       </div>
     </header>
 
@@ -58,9 +40,8 @@
 
     <div v-show="activeTab === 'analysis'" class="analysis-section">
       <h2> Bot 分析</h2>
-      <div style="display: flex; height: 100%; overflow: hidden;color: #121010;  justify-content: center;" >
+      <div style="display: flex; height: 100%; color: #ffffff; justify-content: center; overflow-y: auto" >
         <div class="function-navigation" style=" margin-top: 40px; justify-content: center;">
-
           <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
             <h3 class="section-title">title: {{bot.title}}</h3>
           </div>
@@ -79,61 +60,63 @@
           <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
             <h3 class="section-title">bot like: {{bot.like_count}}</h3>
           </div>
-
         </div>
       </div>
-      <Community/>
+      <div style="overflow-y: auto"><Community/></div>
     </div>
 
     <div v-show="activeTab === 'edit'" class="edit-section">
-
-      <div style="display: flex; height: 100%; overflow: hidden;color: #121010;  justify-content: center;" >
-        <!-- 左侧：功能导航 -->
-      <div class="function-navigation" style=" margin-top: 40px; justify-content: center;">
-         <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-          <h3 class="section-title">输入与回复逻辑编辑</h3>
-          <p class="section-description">
-            使用自然语言编写 Bot 的外观设置、功能和工作流程。
-          </p>
-         </div>
-        <div class="function-navigation" style=" margin-top: 40px;">
-      <div class="plugins-section">
-         <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-        <h4>插件</h4>
-        <div class="plugin-item">
-          <span class="plugin-name">必应搜索 / BingWebSearch</span>
-        </div></div>
-        <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-        <h4 class="section-title">工作流</h4>
-        <p>图像流、触发器等功能配置。</p>
+      <div style="display: flex; flex-direction: column; height: 100%; overflow: auto;">
+        <header
+            style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd;"
+        >
+          <div style="font-size: 28px;text-align: center; font-weight: bold;">{{bot.title}}</div>
+          <div>
+            <button style="background-color: transparent; border: none; cursor: pointer;">隐私设置</button>
           </div>
-         <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
-        <h4 class="section-title">知识</h4>
-        <ul class="knowledge-list">
-          <li>文本</li>
-          <li>表格</li>
-          <li>照片</li>
-        </ul></div>
-        </div></div></div>
-
-          <!-- 右侧：预览与调试 -->
-        <div style="flex: 1; display: flex; flex-direction: column;">
-            <header
-                style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #ddd;"
-            >
-              <div style="font-size: 28px;text-align: center; font-weight: bold;">{{bot.title}}</div>
-              <div>
-                <button style="background-color: transparent; border: none; cursor: pointer;">隐私设置</button>
+        </header>
+        <div style="display: flex; flex: 1; padding: 20px; width: 110%">
+          <div class="function-navigation" style="flex: 0 0 250px; padding-right: 20px; overflow-y: auto; font-size: 13px;">
+            <div class="content" style=" margin-top: 40px; text-align: center;">
+              <h3 class="section-title">输入与回复逻辑编辑</h3>
+              <p class="section-description">
+                使用自然语言编写 Bot 的外观设置、功能和工作流程。
+              </p>
+            </div>
+            <div class="function-navigation" style=" margin-top: 40px;">
+              <div class="plugins-section">
+                <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+                  <h4>插件</h4>
+                  <div class="plugin-item">
+                    <span class="plugin-name">必应搜索 / BingWebSearch</span>
+                  </div>
+                </div>
+                <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+                  <h4 class="section-title">工作流</h4>
+                  <p>图像流、触发器等功能配置。</p>
+                </div>
+                <div class="content" style=" margin-top: 40px;margin-right:15px;text-align: center;">
+                  <h4 class="section-title">知识</h4>
+                  <ul class="knowledge-list">
+                    <li>文本</li>
+                    <li>表格</li>
+                    <li>照片</li>
+                  </ul>
+                </div>
               </div>
-            </header>
-            <Home/>
+            </div>
+          </div>
+          <div style="flex: 1; display: flex; flex-direction: column; overflow-y: auto;">
+            <div style="flex-grow: 1;">
+              <Home/>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-
   </div>
 </template>
+
 
 <script>
 import Home from "@/views/Home.vue";
@@ -238,11 +221,12 @@ export default {
 
 <style scoped>
 :root {
-  --main-bg-color: #f5f5f5;
-  --main-text-color: #bcbcbc;
-  --active-color: #4CAF50;
+  --main-bg-color: #ffffff; /* 白色背景 */
+  --main-text-color: #333333; /* 更深的文本颜色 */
   --button-bg-color: #007bff;
   --button-hover-color: #0056b3;
+  --section-bg-color: #ffffff; /* 统一设置为白色背景 */
+  --border-color: #ddd; /* 边框颜色 */
 }
 
 .button {
@@ -260,10 +244,10 @@ export default {
 
 
 .content {
-  background-color: rgb(197, 195, 195); /* 初始背景颜色 */
+  background-color:  #f8f8f8;; /* 初始背景颜色 */
   color: #090707; /* 文字颜色 */
   padding: 10px 10px; /* 内边距 */
-  border: #070707; /* 边框 */
+  border: 1px solid #ddd; /* 边框 */
   border-bottom-width: medium;
   border-radius: 5px; /* 圆角边框 */
 
@@ -271,13 +255,13 @@ export default {
   transition: background-color 0.3s; /* 过渡效果，用于背景颜色变化 */
 }
 .content:hover {
-  background-color: #888787; /* 鼠标悬停时的背景颜色 */
+  background-color: #e0e0e0; /* 鼠标悬停时的背景颜色 */
 }
 
 
 
 .bot-manager {
-  background-color: rgba(216, 216, 216, 0.42);
+  background-color: #ffffff;
   color: var(--main-text-color);
   width: 100%;
   max-width: 1500px;
@@ -287,33 +271,23 @@ export default {
   flex-direction: row;
   align-items: center;
   padding: 20px;
+  box-shadow: none; /* 去掉阴影 */
 }
 
 header {
   background-color: var(--main-bg-color);
-  color: white;
+  color: #333;
   padding: 10px 20px;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--border-color);
 }
-
-.button-flat {
-  background-color: var(--button-bg-color);
-  color: white;
-  border: none;
-  border-radius: 4px;
-  padding: 8px 16px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-
-}
-
 
 .edit-section, .analysis-section {
   font-family: 'Arial', sans-serif;
-  background-color: rgba(14, 13, 13, 0.13);
+  background-color: #ffffff;
   color: #101010;
   display: flex;
   padding: 20px;
+  height: 75vh;
 }
 
 .analysis{

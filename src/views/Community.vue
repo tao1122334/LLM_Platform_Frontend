@@ -18,11 +18,11 @@
     </div>
 
     <!-- 评论列表 -->
-    <div>
+    <div style="overflow-y: auto">
       <div
           v-for="(comment, index) in comments"
           :key="index"
-          style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px;">
+          style="border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 8px; overflow-y: auto">
         <!-- 点击头像跳转到作者空间 -->
         <div style="display: flex; align-items: center; cursor: pointer;">
 <!--          <img-->
@@ -42,7 +42,9 @@
         <div style="margin-top: 5px;">{{ comment.content }}</div>
         <!-- 评论的操作按钮 -->
         <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
-          <div></div> <!-- 用于占位对齐 -->
+          <div>
+            <span style="font-size: 10px; ">{{ formatDate(comment.created_at) }}</span>
+          </div> <!-- 用于占位对齐 -->
           <div>
 <!--            <button-->
 <!--                @click="likeComment(index)"-->
@@ -53,6 +55,7 @@
 <!--                style="background: none; border: none; cursor: pointer; margin-left: 8px;">-->
 <!--              💬 {{ comment.replies }} 评论-->
 <!--            </button>-->
+
             <span>评分: {{ comment.rating }}</span>
           </div>
         </div>
@@ -108,6 +111,12 @@ export default {
     };
   },
   methods: {
+    // 格式化时间的方法
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+      const date = new Date(dateString);
+      return date.toLocaleString('zh-CN', options).replace(',', ''); // 可根据需要调整格式
+    },
     refreshPage() {
       this.getComments(); // 刷新评论列表
       alert('页面已刷新');
