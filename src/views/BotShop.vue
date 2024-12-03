@@ -119,7 +119,7 @@ export default {
     <!-- 展示部分：占据剩余全部高度，并且内部可滚动 -->
     <div style="flex-grow: 1; overflow-y: auto; padding: 20px; background-color: #f8f8f8;">
       <!-- 灰色占位段位符 -->
-    <div style="width: 100%; height: 200px; background-color: #e0e0e0; margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
+      <div style="width: 100%; height: 200px; background-color: #e0e0e0; margin-bottom: 20px; display: flex; justify-content: center; align-items: center;">
         <img src="../assets/img.png" alt="hello" style="width: 100%; height: 100%; object-fit: cover;" />
     </div>
 
@@ -161,7 +161,7 @@ export default {
         <div
             v-for="(bot, index) in bots"
             :key="index"
-            style="width: calc(33.3333% - 20px); padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: box-shadow 0.3s;"
+            style="width: calc(33.3333% - 60px); padding: 20px; border: 1px solid #ddd; border-radius: 8px; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: box-shadow 0.3s;"
             @mouseover="hoverEffect = index"
             @mouseleave="hoverEffect = -1"
             :style="hoverEffect === index ? 'box-shadow: 0 4px 12px rgba(0,0,0,0.2);' : ''"
