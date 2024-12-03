@@ -1,6 +1,16 @@
 
 <script>
+
+
+import AvatarComponent from "@/views/AvatarComponent.vue";
 export default {
+  components: {AvatarComponent},
+  props: {
+    userAvatar: {
+      type: String,
+      default: 'path/to/avatar.png'
+    },
+  },
   data() {
     return {
       // 个人说明书信息
@@ -16,7 +26,7 @@ export default {
         id: '',
         name: "",
         email:"",
-        avatar: "https://via.placeholder.com/50"
+        avatar: "path/to/avatar.png"
       },
 
       comments:[],
@@ -138,11 +148,17 @@ export default {
 </script>
 
 <template>
+
   <div class="comment-section">
     <!-- 个人说明书信息 -->
     <div class="bot-info">
-      <img :src="authorInfo.avatar" alt="Avatar" class="avatar">
-      <div class="bot-details">
+      <div  style="flex-shrink: 0; padding: 20px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;" class="bot-details">
+        <div class="bot-details"  >
+          <AvatarComponent
+            :size="50"
+            :image="userAvatar"
+            :name="authorInfo.name"
+        />
         <h2>{{ botInfo.title }}</h2>
         <p>作者：{{ authorInfo.name }}</p>
         <p>ID：{{ authorInfo.id }}</p>
@@ -152,10 +168,12 @@ export default {
         <p>{{ botInfo.description }}</p>
       </div>
     </div>
+  </div>
+
 
     <!-- 评论列表 -->
-    <h3 style="background-color: rgba(128,128,128,0.25); width:75px" >评论列表</h3>
-    <div class="comments_ares">
+    <h3  >评论列表</h3>
+    <div class="comments_ares" style="flex-shrink: 0; padding: 20px; background-color: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;">
       <div class="comments">
         <div v-for="comment in comments" :key="comment.id" class="comment">
           <strong>用户:{{ comment.author }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;创建于：{{ comment.createdAt }}</strong>
@@ -166,8 +184,8 @@ export default {
     </div>
 
     <!-- 评论表单 -->
-    <div class="comment-form">
-        <h3 style="background-color: rgba(128,128,128,0.25); width:40px" >评分</h3>
+    <div class="comment-form" >
+        <h3  >评分</h3>
   <div class="star-rating">
      <p>你的评分是{{ Rate===''?'':':'+'  '+Rate }}</p>
     <input type="radio" id="star5" value="5" v-model="Rate"  />
@@ -180,9 +198,11 @@ export default {
     <label for="star2" class="star" @click="controlElementById(2)">&#9733;</label>
     <input type="radio" id="star1" value="1" v-model="Rate" />
     <label for="star1" class="star" @click="controlElementById(1)">&#9733;</label>
-  </div>
-      <div v-if="errorMessage" class="error-message">{{ errorMessage }}</div>
-  <textarea v-model="newComment" placeholder="写下你的评论..."></textarea>
+  </div >
+      <div v-if="errorMessage" class="error-message" >{{ errorMessage }}</div>
+      <div style="width: 700px">
+ <textarea v-model="newComment" placeholder="写下你的评论..."></textarea>
+        </div >
   <button @click="submitComment">提交评论</button>
     </div>
   </div>
@@ -198,7 +218,7 @@ export default {
 }
 
 .bot-info {
-  width: 500px;
+  width: 100%;
   display: flex;
   align-items: center;
   margin-bottom: 20px;
